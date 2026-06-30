@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>極速隨機抽卡機</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card-display { width: 100%; height: 400px; border: 2px dashed #ccc; border-radius: 8px; margin: 20px 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa; }
+        .card-display img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .btn { background: #007bff; color: white; border: none; padding: 12px 24px; font-size: 18px; border-radius: 6px; cursor: pointer; width: 100%; margin-bottom: 10px; }
+        .btn:hover { background: #0056b3; }
+        .btn-reset { background: #6c757d; }
+        .btn-reset:hover { background: #5a6268; }
+        .status { color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🔮 44張龍卡 隨機卡機</h2>
+    <div class="card-display" id="cardDisplay">
+        <span style="color: #999;">點擊下方按鈕開始抽卡</span>
+    </div>
+    <button class="btn" onclick="drawCard()">🃏 抽一張卡！</button>
+    <button class="btn btn-reset" onclick="resetDeck()">🔄 重新洗牌</button>
+    <p class="status" id="statusText">剩餘卡牌：44 / 44</p>
+</div>
+
+<script>
+    const TOTAL_CARDS = 44;
+    let deck = [];
+
+    // 初始化牌組 (1 到 44)
+    function resetDeck() {
+        deck = [];
+        for (let i = 1; i <= TOTAL_CARDS; i++) {
+            deck.push(i);
+        }
+        document.getElementById('cardDisplay').innerHTML = '<span style="color: #999;">牌組已重置，請抽卡</span>';
+        updateStatus();
+    }
+
+    function updateStatus() {
+        document.getElementById('statusText').innerText = `剩餘卡牌：${deck.length} / ${TOTAL_CARDS}`;
+    }
+
+    function drawCard() {
+        if (deck.length === 0) {
+            alert('卡牌已經抽完啦！請重新洗牌。');
+            return;
+        }
+
+        // 隨機抽出一張
+        const randomIndex = Math.floor(Math.random() * deck.length);
+        const cardNum = deck.splice(randomIndex, 1)[0]; // 抽出並從牌組移除（不重複抽卡）
+
+        // 顯示圖片（假設圖片名稱為 1.jpg, 2.jpg...）
+        const displayDiv = document.getElementById('cardDisplay');
+        displayDiv.innerHTML = `<img src="${cardNum}.jpg" alt="Card ${cardNum}">`;
+        
+        updateStatus();
+    }
+
+    // 網頁載入時自動初始化
+    resetDeck();
+</script>
+
+</body>
+</html>
