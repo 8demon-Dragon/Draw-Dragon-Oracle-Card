@@ -3,47 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>極速隨機抽卡機</title>
+    <title>飛龍神諭卡隨機抽卡機</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .card-display { width: 100%; height: 400px; border: 2px dashed #ccc; border-radius: 8px; margin: 20px 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa; }
-        .card-display img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .btn { background: #007bff; color: white; border: none; padding: 12px 24px; font-size: 18px; border-radius: 6px; cursor: pointer; width: 100%; margin-bottom: 10px; }
-        .btn:hover { background: #0056b3; }
-        .btn-reset { background: #6c757d; }
-        .btn-reset:hover { background: #5a6268; }
-        .status { color: #666; font-size: 14px; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background: #eef2f7; padding: 20px; color: #333; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+        h2 { color: #2c3e50; margin-top: 0; font-size: 24px; }
+        .card-display { width: 100%; height: 500px; border: 2px dashed #cbd5e1; border-radius: 12px; margin: 20px 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #f8fafc; transition: all 0.3s ease; }
+        .card-display img { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px; }
+        
+        /* 卡名與頁數的樣式 */
+        .card-info { margin: 10px 0 20px 0; min-height: 60px; }
+        .card-title { font-size: 20px; font-weight: bold; color: #1e293b; margin-bottom: 6px; }
+        .card-page { display: inline-block; font-size: 14px; color: #ffffff; background: #0ea5e9; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+        
+        .btn { background: #3b82f6; color: white; border: none; padding: 14px 24px; font-size: 18px; border-radius: 8px; cursor: pointer; width: 100%; margin-bottom: 12px; font-weight: bold; transition: background 0.2s; }
+        .btn:hover { background: #2563eb; }
+        .btn-reset { background: #64748b; }
+        .btn-reset:hover { background: #475569; }
+        .status { color: #64748b; font-size: 14px; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🔮 44張龍卡 隨機卡機</h2>
+    <h2>🔮 飛龍神諭卡 隨機抽卡機</h2>
     <div class="card-display" id="cardDisplay">
-        <span style="color: #999;">點擊下方按鈕開始抽卡</span>
+        <span style="color: #94a3b8; font-size: 16px;">點擊下方按鈕開始抽卡</span>
     </div>
-    <button class="btn" onclick="drawCard()">🃏 抽一張卡！</button>
+    
+    <div class="card-info">
+        <div class="card-title" id="cardTitle"></div>
+        <div id="cardPageContainer"></div>
+    </div>
+    
+    <button class="btn" onclick="drawCard()">🃏 抽一張神諭卡！</button>
     <button class="btn btn-reset" onclick="resetDeck()">🔄 重新洗牌</button>
-    <p class="status" id="statusText">剩餘卡牌：44 / 44</p>
+    <p class="status" id="statusText">剩餘卡牌：0 / 44</p>
 </div>
 
 <script>
-    const TOTAL_CARDS = 44;
+    // 💡 喺呢度貼上你 44 張卡片嘅完整檔名
+    const CARD_FILES = [
+        "01_Earth Dragon_p18.jpg",
+        "02_Air Dragon_p20.jpg",
+"03_Fire Dragon_p22.jpg",
+"04_Water Dragon_p24.jpg",
+"05_Earth and Air Dragon_p26.jpg",
+"06_Earth and Fire Dragon_p28.jpg",
+"07_Earth and Water Dragon_p30.jpg",
+"08_Air and Fire Dragon_p32.jpg",
+"09_Air and Water Dragon_p34.jpg",
+"10_Fire and Water Dragon_p36.jpg",
+"11_Golden Christed Dragon_p40.jpg",
+"12_Gold and Silver Violet Flame Dragon_p42.jpg",
+"13_Lilac Fire Dragon_p44.jpg",
+"14_Quan Yin's Pink Dragon_p46.jpg",
+"15_Archangel Gabriel's Dragon_p48.jpg",
+"16_Rainbow Dragon_p50.jpg",
+"17_Black Dragon_p52.jpg",
+"18_Emerald Dragon_p54.jpg",
+"19_Silver Dragon_p56.jpg",
+"20_Orange Dragon_p58.jpg",
+"21_Deep Blue Dragon_p60.jpg",
+"22_Crystal Yellow Dragon_p62.jpg",
+"23_Green Dragon_p64.jpg",
+"24_Golden Orange Dragon_p66.jpg",
+"25_Sunshine Yellow Dragon_p68.jpg",
+"26_Royal Blue Gold Dragon_p70.jpg",
+"27_Magenta Dragon_p72.jpg",
+"28_Black Dragon from Saturn_p74.jpg",
+"29_Thor's Red, black and Gold Dragon_p76.jpg",
+"30_Rose Pink Dragon_p80.jpg",
+"31_Aquamarine Dragon from Neptune_p82.jpg",
+"32_Pure White Dragon from Orion_p84.jpg",
+"33_Blue Dragon from the Pleiades_p86.jpg",
+"34_Green-Gold Dragon from Sirius_p88.jpg",
+"35_Silver Lunar Dragon_p90.jpg",
+"36_Golden Solar Dragon_p92.jpg",
+"37_Dusky Pink Dragon from Andromeda_p94.jpg",
+"38_Orange-Gold Dragon from Arcturus_p96.jpg",
+"39_White-Gold Dragon from Lyra_p98.jpg",
+"40_Golden Atlantean Dragon_p100.jpg",
+"41_Dark Blue Galactic Dragon_p104.jpg",
+"42_Alpha Dragon_p106.jpg",
+"43_Omega Dragon_p108.jpg",
+"44_Source Dragon_p110.jpg"
+
+    ];
+
     let deck = [];
 
-    // 初始化牌組 (1 到 44)
     function resetDeck() {
-        deck = [];
-        for (let i = 1; i <= TOTAL_CARDS; i++) {
-            deck.push(i);
-        }
-        document.getElementById('cardDisplay').innerHTML = '<span style="color: #999;">牌組已重置，請抽卡</span>';
+        deck = [...CARD_FILES];
+        document.getElementById('cardDisplay').innerHTML = '<span style="color: #94a3b8; font-size: 16px;">牌組已重置，請抽卡</span>';
+        document.getElementById('cardTitle').innerText = '';
+        document.getElementById('cardPageContainer').innerHTML = '';
         updateStatus();
     }
 
     function updateStatus() {
-        document.getElementById('statusText').innerText = `剩餘卡牌：${deck.length} / ${TOTAL_CARDS}`;
+        document.getElementById('statusText').innerText = `剩餘卡牌：${deck.length} / ${CARD_FILES.length}`;
+    }
+
+    // 🧠 新增：同時解讀名字同埋頁數
+    function parseCardDetails(filename) {
+        // 1. 提取名字：拿走前面的數字底線(如 01_)，再拿走後面的頁數(.jpg)
+        let name = filename.replace(/^\d+_/, ''); 
+        name = name.replace(/_p\d+\.jpg$/i, ''); 
+        
+        // 2. 提取頁數：用 Regular Expression 搵出 "p" 後面的數字
+        let pageMatch = filename.match(/_p(\d+)\.jpg$/i);
+        let pageNum = pageMatch ? pageMatch[1] : ''; 
+
+        return {
+            name: name,
+            page: pageNum ? `Page ${pageNum}` : '' // 格式化成 "Page 18"
+        };
     }
 
     function drawCard() {
@@ -52,18 +127,30 @@
             return;
         }
 
-        // 隨機抽出一張
         const randomIndex = Math.floor(Math.random() * deck.length);
-        const cardNum = deck.splice(randomIndex, 1)[0]; // 抽出並從牌組移除（不重複抽卡）
+        const selectedCard = deck.splice(randomIndex, 1)[0];
 
-        // 顯示圖片（假設圖片名稱為 1.jpg, 2.jpg...）
+        // 顯示圖片
         const displayDiv = document.getElementById('cardDisplay');
-        displayDiv.innerHTML = `<img src="${cardNum}.jpg" alt="Card ${cardNum}">`;
+        displayDiv.innerHTML = `<img src="${selectedCard}" alt="${selectedCard}">`;
+        
+        // 解析並顯示卡牌資料
+        const details = parseCardDetails(selectedCard);
+        
+        // 顯示名字
+        document.getElementById('cardTitle').innerText = details.name;
+        
+        // 顯示頁數藍色標籤
+        const pageContainer = document.getElementById('cardPageContainer');
+        if (details.page) {
+            pageContainer.innerHTML = `<span class="card-page">📖 ${details.page}</span>`;
+        } else {
+            pageContainer.innerHTML = '';
+        }
         
         updateStatus();
     }
 
-    // 網頁載入時自動初始化
     resetDeck();
 </script>
 
