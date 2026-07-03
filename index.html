@@ -217,6 +217,7 @@
             pointer-events: none;
             transition: opacity 0.3s ease;
         }
+        /* 當彈出視窗啟用時的顯示設定 */
         .modal-overlay.active {
             opacity: 1;
             pointer-events: auto;
@@ -325,6 +326,25 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        /* 專為小螢幕（例如 iPhone mini）設計的響應式設定 */
+        @media (max-width: 440px) {
+            .modal-content {
+                width: 85%; /* 左右收窄，讓畫面左右兩側留出精美的星空比例 */
+                max-height: 80vh; /* 上下縮減高度，防止在細小螢幕的手機上撐爆頂底 */
+                border-radius: 20px;
+            }
+            .modal-header {
+                padding: 12px 16px;
+            }
+            .modal-title {
+                font-size: 15px; /* 字體微調小 */
+            }
+            .modal-body {
+                padding: 10px;
+            }
+            /* ❌ 此處不對 .grid-item 或 .grid-item-img-container 進行迷你化縮放，維持原本清晰大尺寸 */
         }
     </style>
 </head>
@@ -544,7 +564,7 @@
     // 抽卡功能
     function drawCard() {
         if (deck.length === 0) {
-            // 使用無毒無害的自訂資訊提示（避免 alert）
+            // 使用自訂資訊提示
             const displayDiv = document.getElementById('cardDisplay');
             displayDiv.innerHTML = '<span style="color: #f43f5e; font-size: 15px; font-weight: 500;">卡牌已經抽完啦！請點擊下方「重新洗牌」按鈕。</span>';
             return;
