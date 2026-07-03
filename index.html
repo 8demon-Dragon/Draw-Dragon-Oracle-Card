@@ -45,7 +45,14 @@
 <script>
     // 💡 喺呢度貼上你 44 張卡片嘅完整檔名
     const CARD_FILES = [
-        "01_Earth Dragon_p18.jpg",
+        "01_Earth Dragon_p18.jpg", 
+        {
+        "01_Earth Dragon_p18.jpg": {
+            chapter: "第 8 章",
+            Book page: "P38",
+            nameZh: "土龍",
+            nameEn: "Earth Dragon"
+        },
         "02_Air Dragon_p20.jpg",
 "03_Fire Dragon_p22.jpg",
 "04_Water Dragon_p24.jpg",
@@ -144,7 +151,7 @@
         // 顯示頁數藍色標籤
         const pageContainer = document.getElementById('cardPageContainer');
         if (details.page) {
-            pageContainer.innerHTML = `<span class="card-page">📖 ${details.page}</span>`;
+            pageContainer.innerHTML = `<span class="card-page">Card guide📖 ${details.page}</span>`;
         } else {
             pageContainer.innerHTML = '';
         }
