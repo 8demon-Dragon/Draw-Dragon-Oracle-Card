@@ -78,7 +78,6 @@
             }
         }
 
-        /* */
         /* 卡片詳細資訊區塊 */
         .card-info { 
             margin: 15px 0; 
@@ -210,7 +209,6 @@
             font-weight: 500;
         }
 
-        /* */
         /* 卡牌總覽彈窗樣式 */
         .modal-overlay {
             position: fixed;
@@ -506,7 +504,8 @@
 
     let deck = [];
 
-    //    function resetDeck() {
+    // 【完美修正：解除此處的註解，恢復函數定義，徹底消滅 Syntax Error！】
+    function resetDeck() {
         deck = [...CARD_FILES];
         // 清空展示區
         document.getElementById('cardDisplay').innerHTML = '<span style="color: #64748b; font-size: 15px; font-weight: 500;">牌組已重置，請抽卡</span>';
@@ -524,7 +523,7 @@
         return pageMatch ? `P.${pageMatch[1]}` : '';
     }
 
-    //    // 渲染特定卡牌的詳細資訊
+    // 渲染特定卡牌的詳細資訊
     function displayCardDetails(selectedCard) {
         // 1. 顯示圖片
         const displayDiv = document.getElementById('cardDisplay');
@@ -594,7 +593,7 @@
         updateStatus();
     }
 
-    //    // 生成並打開「所有卡牌一覽」彈窗
+    // 生成並打開「所有卡牌一覽」彈窗
     function openAllCards() {
         const modal = document.getElementById('allCardsModal');
         const grid = document.getElementById('cardsGrid');
@@ -664,3 +663,4 @@
 
 </body>
 </html>
+```
