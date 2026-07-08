@@ -5,646 +5,164 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>飛龍神諭卡隨機抽卡機</title>
     <style>
-        /* 採用高雅神秘的星空深色調背景 */
-        body { 
-            font-family: 'PingFang HK', 'Helvetica Neue', Arial, sans-serif; 
-            text-align: center; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); 
-            padding: 15px; 
-            color: #f1f5f9; 
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
-        }
-        .container { 
-            max-width: 480px; 
-            width: 100%;
-            margin: auto; 
-            background: rgba(30, 41, 59, 0.7); 
-            backdrop-filter: blur(10px);
-            padding: 20px; 
-            border-radius: 24px; 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); 
-            box-sizing: border-box;
-            position: relative;
-        }
-        h2 { 
-            color: #f8fafc; 
-            margin-top: 5px; 
-            margin-bottom: 15px;
-            font-size: 22px; 
-            letter-spacing: 1.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .card-display { 
-            width: 100%; 
-            height: 440px; 
-            border: 2px dashed rgba(148, 163, 184, 0.3); 
-            border-radius: 18px; 
-            margin: 15px 0; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden; 
-            background: rgba(15, 23, 42, 0.6); 
-            position: relative;
-        }
-        .card-display img { 
-            max-width: 95%; 
-            max-height: 95%; 
-            object-fit: contain; 
-            box-shadow: 0 12px 24px rgba(0,0,0,0.5); 
-            border-radius: 14px; 
-            animation: cardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background: #eef2f7; padding: 20px; color: #333; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+        h2 { color: #2c3e50; margin-top: 0; font-size: 24px; }
+        .card-display { width: 100%; height: 500px; border: 2px dashed #cbd5e1; border-radius: 12px; margin: 20px 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #f8fafc; transition: all 0.3s ease; }
+        .card-display img { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px; }
         
-        /* 抽卡時的魔法漸變放大動畫 */
-        @keyframes cardReveal {
-            0% {
-                opacity: 0;
-                transform: scale(0.9) translateY(10px);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        /* 卡片詳細資訊區塊 */
-        .card-info { 
-            margin: 15px 0; 
-            min-height: 110px; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(15, 23, 42, 0.4);
-            border-radius: 16px;
-            padding: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        /* 卡名與頁數的樣式 */
+        .card-info { margin: 10px 0 20px 0; min-height: 60px; }
+        .card-title { font-size: 20px; font-weight: bold; color: #1e293b; margin-bottom: 8px; }
         
-        /* 章節與頁數標籤 */
-        .badge-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 6px;
-            margin-bottom: 10px;
-        }
-        .badge-chapter { 
-            font-size: 11px; 
-            color: #ffffff; 
-            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); /* 漸變紫色 */
-            padding: 4px 10px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            box-shadow: 0 2px 4px rgba(124, 58, 237, 0.3);
-        }
-        .badge-book-page { 
-            font-size: 11px; 
-            color: #ffffff; 
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); /* 漸變藍色 */
-            padding: 4px 10px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
-        }
-        .badge-guide-page { 
-            font-size: 11px; 
-            color: #ffffff; 
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); /* 漸變橙色 */
-            padding: 4px 10px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            box-shadow: 0 2px 4px rgba(217, 119, 6, 0.3);
-        }
+        /* 頁數標籤容器 */
+        .page-tags { display: flex; justify-content: center; gap: 8px; margin-top: 6px; }
+        .card-page { display: inline-block; font-size: 14px; color: #ffffff; padding: 3px 12px; border-radius: 20px; font-weight: 500; }
+        .tag-ebook { background: #0ea5e9; } /* e-Book 藍色 */
+        .tag-book { background: #f59e0b; }   /* 實體書 橙色 */
         
-        /* 中英文名稱 */
-        .name-zh { 
-            font-size: 20px; 
-            font-weight: bold; 
-            color: #f8fafc; 
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
-        }
-        .name-en { 
-            font-size: 13px; 
-            color: #94a3b8; 
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-        
-        /* 按鈕設計 */
-        .btn { 
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
-            color: white; 
-            border: none; 
-            padding: 14px 24px; 
-            font-size: 18px; 
-            border-radius: 14px; 
-            cursor: pointer; 
-            width: 100%; 
-            margin-bottom: 12px; 
-            font-weight: bold; 
-            transition: all 0.2s ease; 
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-            letter-spacing: 1px;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .btn:active { 
-            transform: scale(0.98);
-            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
-        }
-        
-        /* 多重控制按鈕排版 */
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        .btn-secondary { 
-            background: linear-gradient(135deg, #475569 0%, #334155 100%);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            font-size: 14px;
-            padding: 10px 15px;
-            border-radius: 12px;
-            margin-bottom: 0;
-            width: auto;
-        }
-        .btn-view-all {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            box-shadow: 0 4px 12px rgba(3, 105, 161, 0.2);
-            font-size: 14px;
-            padding: 10px 15px;
-            border-radius: 12px;
-            margin-bottom: 0;
-            width: auto;
-        }
-        .status { 
-            color: #94a3b8; 
-            font-size: 13px; 
-            margin-top: 12px; 
-            margin-bottom: 0;
-            font-weight: 500;
-        }
-
-        /* 卡牌總覽彈窗樣式 */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        /* 當彈出視窗啟用時的顯示設定 */
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-content {
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 24px;
-            max-width: 520px;
-            width: 90%;
-            max-height: 85vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            transform: scale(0.95) translateY(10px);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .modal-overlay.active .modal-content {
-            transform: scale(1) translateY(0);
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .modal-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #f8fafc;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 24px;
-            cursor: pointer;
-            transition: color 0.2s;
-            padding: 0;
-            line-height: 1;
-        }
-        .modal-close:hover {
-            color: #f1f5f9;
-        }
-        .modal-body {
-            overflow-y: auto;
-            padding: 16px;
-            flex: 1;
-        }
-        
-        /* 卡牌格線排列 */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-        .grid-item {
-            background: rgba(15, 23, 42, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
-            padding: 8px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .grid-item:hover {
-            transform: translateY(-4px);
-            background: rgba(124, 58, 237, 0.15);
-            border-color: rgba(124, 58, 237, 0.4);
-            box-shadow: 0 8px 16px rgba(124, 58, 237, 0.1);
-        }
-        .grid-item-img-container {
-            width: 100%;
-            height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border-radius: 8px;
-            background: rgba(15, 23, 42, 0.8);
-            margin-bottom: 8px;
-        }
-        .grid-item-img-container img {
-            max-width: 95%;
-            max-height: 95%;
-            object-fit: contain;
-        }
-        .grid-item-name-zh {
-            font-size: 14px;
-            font-weight: bold;
-            color: #f1f5f9;
-            margin-bottom: 2px;
-        }
-        .grid-item-name-en {
-            font-size: 10px;
-            color: #94a3b8;
-            text-align: center;
-            max-width: 95%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        /* 專為小螢幕（例如 iPhone mini）設計的響應式設定 */
-        @media (max-width: 440px) {
-            .modal-content {
-                width: 85%; /* 左右收窄，讓畫面左右兩側留出精美的星空比例 */
-                max-height: 80vh; /* 上下縮減高度，防止在細小螢幕的手機上撐爆頂底 */
-                border-radius: 20px;
-            }
-            .modal-header {
-                padding: 12px 16px;
-            }
-            .modal-title {
-                font-size: 15px; /* 字體微調小 */
-            }
-            .modal-body {
-                padding: 10px;
-            }
-            /* ❌ 此處不對 .grid-item 或 .grid-item-img-container 進行迷你化縮放，維持原本清晰大尺寸 */
-        }
+        .btn { background: #3b82f6; color: white; border: none; padding: 14px 24px; font-size: 18px; border-radius: 8px; cursor: pointer; width: 100%; margin-bottom: 12px; font-weight: bold; transition: background 0.2s; }
+        .btn:hover { background: #2563eb; }
+        .btn-reset { background: #64748b; }
+        .btn-reset:hover { background: #475569; }
+        .status { color: #64748b; font-size: 14px; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🐲 飛龍神諭卡隨機抽卡</h2>
-    
-    <button class="btn" onclick="drawCard()">🐉 抽一張龍神諭卡！</button>
-
+    <h2>🔮 飛龍神諭卡 隨機抽卡機</h2>
     <div class="card-display" id="cardDisplay">
-        <span style="color: #64748b; font-size: 15px; font-weight: 500;">點擊上方按鈕開始抽卡</span>
+        <span style="color: #94a3b8; font-size: 16px;">點擊下方按鈕開始抽卡</span>
     </div>
     
-    <!-- 卡片詳細資訊區塊 -->
-    <div class="card-info" id="cardInfoBlock" style="display: none;">
-        <div class="badge-container">
-            <span class="badge-chapter" id="cardChapter"></span>
-            <span class="badge-book-page" id="cardBookPage"></span>
-            <span class="badge-guide-page" id="cardGuidePage"></span>
-        </div>
-        <div class="name-zh" id="cardNameZh"></div>
-        <div class="name-en" id="cardNameEn"></div>
+    <div class="card-info">
+        <div class="card-title" id="cardTitle"></div>
+        <div class="page-tags" id="cardPageContainer"></div>
     </div>
     
-    <!-- 功能按鈕組 -->
-    <div class="btn-group">
-        <button class="btn btn-reset btn-secondary" onclick="resetDeck()">🔄 重新洗牌</button>
-        <button class="btn btn-view-all" onclick="openAllCards()">📋 所有卡牌一覽</button>
-    </div>
-    
+    <button class="btn" onclick="drawCard()">🃏 抽一張神諭卡！</button>
+    <button class="btn btn-reset" onclick="resetDeck()">🔄 重新洗牌</button>
     <p class="status" id="statusText">剩餘卡牌：0 / 44</p>
 </div>
 
-<!-- 所有卡牌一覽 彈窗 -->
-<div class="modal-overlay" id="allCardsModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <div class="modal-title">📋 飛龍神諭卡全套圖鑑 (44張)</div>
-            <button class="modal-close" onclick="closeAllCards()">&times;</button>
-        </div>
-        <div class="modal-body" id="modalBody">
-            <div class="cards-grid" id="cardsGrid">
-                <!-- 由 JavaScript 動態生成卡牌項目 -->
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-    // 1. 完整 44 張卡片檔名
-    const CARD_FILES = [
-        "01_Earth Dragon_p18.jpg", 
-        "02_Air Dragon_p20.jpg",
-        "03_Fire Dragon_p22.jpg",
-        "04_Water Dragon_p24.jpg",
-        "05_Earth and Air Dragon_p26.jpg",
-        "06_Earth and Fire Dragon_p28.jpg",
-        "07_Earth and Water Dragon_p30.jpg",
-        "08_Air and Fire Dragon_p32.jpg",
-        "09_Air and Water Dragon_p34.jpg",
-        "10_Fire and Water Dragon_p36.jpg",
-        "11_Golden Christed Dragon_p40.jpg",
-        "12_Gold and Silver Violet Flame Dragon_p42.jpg",
-        "13_Lilac Fire Dragon_p44.jpg",
-        "14_Quan Yin's Pink Dragon_p46.jpg",
-        "15_Archangel Gabriel's Dragon_p48.jpg",
-        "16_Rainbow Dragon_p50.jpg",
-        "17_Black Dragon_p52.jpg",
-        "18_Emerald Dragon_p54.jpg",
-        "19_Silver Dragon_p56.jpg",
-        "20_Orange Dragon_p58.jpg",
-        "21_Deep Blue Dragon_p60.jpg",
-        "22_Crystal Yellow Dragon_p62.jpg",
-        "23_Green Dragon_p64.jpg",
-        "24_Golden Orange Dragon_p66.jpg",
-        "25_Sunshine Yellow Dragon_p68.jpg",
-        "26_Royal Blue Gold Dragon_p70.jpg",
-        "27_Magenta Dragon_p72.jpg",
-        "28_Black Dragon from Saturn_p74.jpg",
-        "29_Thor's Red, black and Gold Dragon_p76.jpg",
-        "30_Rose Pink Dragon_p80.jpg",
-        "31_Aquamarine Dragon from Neptune_p82.jpg",
-        "32_Pure White Dragon from Orion_p84.jpg",
-        "33_Blue Dragon from the Pleiades_p86.jpg",
-        "34_Green-Gold Dragon from Sirius_p88.jpg",
-        "35_Silver Lunar Dragon_p90.jpg",
-        "36_Golden Solar Dragon_p92.jpg",
-        "37_Dusky Pink Dragon from Andromeda_p94.jpg",
-        "38_Orange-Gold Dragon from Arcturus_p96.jpg",
-        "39_White-Gold Dragon from Lyra_p98.jpg",
-        "40_Golden Atlantean Dragon_p100.jpg",
-        "41_Dark Blue Galactic Dragon_p104.jpg",
-        "42_Alpha Dragon_p106.jpg",
-        "43_Omega Dragon_p108.jpg",
-        "44_Source Dragon_p110.jpg"
+    // 💡 資料庫：包含原本的檔名，以及根據你提供的目錄照片手動對應的實體書頁數(bookPage)
+    const CARD_DATA = [
+        { file: "01_Earth Dragon_p18.jpg", bookPage: "59" }, // 第8章 土龍
+        { file: "02_Air Dragon_p20.jpg", bookPage: "67" },  // 第9章 風龍
+        { file: "03_Fire Dragon_p22.jpg", bookPage: "74" }, // 第10章 火龍
+        { file: "04_Water Dragon_p24.jpg", bookPage: "80" }, // 第11章 水龍
+        { file: "05_Earth and Air Dragon_p26.jpg", bookPage: "86" }, // 第12章 土風龍
+        { file: "06_Earth and Fire Dragon_p28.jpg", bookPage: "89" }, // 第13章 土火龍
+        { file: "07_Earth and Water Dragon_p30.jpg", bookPage: "94" }, // 第14章 土水龍
+        { file: "08_Air and Fire Dragon_p32.jpg", bookPage: "99" }, // 第15章 風火龍
+        { file: "09_Air and Water Dragon_p34.jpg", bookPage: "104" }, // 第16章 風水龍
+        { file: "10_Fire and Water Dragon_p36.jpg", bookPage: "111" }, // 第17章 火水龍
+        { file: "11_Golden Christed Dragon_p40.jpg", bookPage: "125" }, // 第19章 基督化的金龍
+        { file: "12_Gold and Silver Violet Flame Dragon_p42.jpg", bookPage: "189" }, // 第30章 大天使薩基爾的金銀紫焰龍
+        { file: "13_Lilac Fire Dragon_p44.jpg", bookPage: "132" }, // 第20章 淡紫色火龍
+        { file: "14_Quan Yin's Pink Dragon_p46.jpg", bookPage: "209" }, // 第33章 觀音的粉紅龍
+        { file: "15_Archangel Gabriel's Dragon_p48.jpg", bookPage: "215" }, // 第34章 大天使加百列的白色水晶龍
+        { file: "16_Rainbow Dragon_p50.jpg", bookPage: "137" }, // 第21章 七彩龍
+        { file: "17_Black Dragon_p52.jpg", bookPage: "142" }, // 第22章 黑龍
+        { file: "18_Emerald Dragon_p54.jpg", bookPage: "220" }, // 第35章 大天使拉斐爾的祖母綠龍
+        { file: "19_Silver Dragon_p56.jpg", bookPage: "147" }, // 第23章 銀龍
+        { file: "20_Orange Dragon_p58.jpg", bookPage: "152" }, // 第24章 橙龍
+        { file: "21_Deep Blue Dragon_p60.jpg", bookPage: "230" }, // 第37章 大天使麥可的深藍龍
+        { file: "22_Crystal Yellow Dragon_p62.jpg", bookPage: "225" }, // 第36章 大天使約非爾的水晶黃龍
+        { file: "23_Green Dragon_p64.jpg", bookPage: "158" }, // 第25章 青龍
+        { file: "24_Golden Orange Dragon_p66.jpg", bookPage: "241" }, // 第39章 大天使麥達昶的金色橙龍
+        { file: "25_Sunshine Yellow Dragon_p68.jpg", bookPage: "235" }, // 第38章 大天使費利耶的陽光黃龍
+        { file: "26_Royal Blue Gold Dragon_p70.jpg", bookPage: "163" }, // 第26章 寶藍金龍
+        { file: "27_Magenta Dragon_p72.jpg", bookPage: "202" }, // 第32章 大天使馬利爾的洋紅龍
+        { file: "28_Black Dragon from Saturn_p74.jpg", bookPage: "301" }, // 第47章 來自土星的黑龍
+        { file: "29_Thor's Red, black and Gold Dragon_p76.jpg", bookPage: "196" }, // 第31章 雷神索爾的紅黑金龍
+        { file: "30_Rose Pink Dragon_p80.jpg", bookPage: "168" }, // 第27章 玫瑰粉紅龍
+        { file: "31_Aquamarine Dragon from Neptune_p82.jpg", bookPage: "261" }, // 第41章 來自海王星的海藍寶龍
+        { file: "32_Pure White Dragon from Orion_p84.jpg", bookPage: "307" }, // 第48章 來自獵戶座的純白龍
+        { file: "33_Blue Dragon from the Pleiades_p86.jpg", bookPage: "313" }, // 第49章 來自昂宿星團的藍龍
+        { file: "34_Green-Gold Dragon from Sirius_p88.jpg", bookPage: "321" }, // 第50章 來自天狼星的綠金龍
+        { file: "35_Silver Lunar Dragon_p90.jpg", bookPage: "327" }, // 第51章 銀月龍
+        { file: "36_Golden Solar Dragon_p92.jpg", bookPage: "332" }, // 第52章 來自赫利俄斯的金色太陽龍
+        { file: "37_Dusky Pink Dragon from Andromeda_p94.jpg", bookPage: "251" }, // 第40章 來自仙女座的暗粉龍
+        { file: "38_Orange-Gold Dragon from Arcturus_p96.jpg", bookPage: "338" }, // 第53章 來自大角星的橙金龍
+        { file: "39_White-Gold Dragon from Lyra_p98.jpg", bookPage: "345" }, // 第54章 來自天琴座的白金龍
+        { file: "40_Golden Atlantean Dragon_p100.jpg", bookPage: "174" }, // 第28章 金色亞特蘭提斯龍
+        { file: "41_Dark Blue Galactic Dragon_p104.jpg", bookPage: "353" }, // 第55章 暗藍銀河龍
+        { file: "42_Alpha Dragon_p106.jpg", bookPage: "361" }, // 第56章 阿爾法龍
+        { file: "43_Omega Dragon_p108.jpg", bookPage: "365" }, // 第57章 歐米茄龍
+        { file: "44_Source Dragon_p110.jpg", bookPage: "370" }  // 第58章 本源龍
     ];
-
-    // 2. 完整 44 張卡牌資料庫對照表（chapter = 書本章節，page = 書本頁數）
-    // 💡 已根據《龍族守護能量全書》PDF內容進行 100% 精準校對！
-    const CARD_DATABASE = {
-        "01_Earth Dragon_p18.jpg": { chapter: "第 8 章", page: "P38", nameZh: "土龍", nameEn: "Earth Dragon" },
-        "02_Air Dragon_p20.jpg": { chapter: "第 9 章", page: "P45", nameZh: "風龍", nameEn: "Air Dragon" },
-        "03_Fire Dragon_p22.jpg": { chapter: "第 10 章", page: "P50", nameZh: "火龍", nameEn: "Fire Dragon" },
-        "04_Water Dragon_p24.jpg": { chapter: "第 11 章", page: "P54", nameZh: "水龍", nameEn: "Water Dragon" },
-        "05_Earth and Air Dragon_p26.jpg": { chapter: "第 12 章", page: "P59", nameZh: "土風龍", nameEn: "Earth and Air Dragon" },
-        "06_Earth and Fire Dragon_p28.jpg": { chapter: "第 13 章", page: "P62", nameZh: "土火龍", nameEn: "Earth and Fire Dragon" },
-        "07_Earth and Water Dragon_p30.jpg": { chapter: "第 14 章", page: "P66", nameZh: "土水龍", nameEn: "Earth and Water Dragon" },
-        "08_Air and Fire Dragon_p32.jpg": { chapter: "第 15 章", page: "P70", nameZh: "風火龍", nameEn: "Air and Fire Dragon" },
-        "09_Air and Water Dragon_p34.jpg": { chapter: "第 16 章", page: "P74", nameZh: "風水龍", nameEn: "Air and Water Dragon" },
-        "10_Fire and Water Dragon_p36.jpg": { chapter: "第 17 章", page: "P80", nameZh: "火水龍", nameEn: "Fire and Water Dragon" },
-        "11_Golden Christed Dragon_p40.jpg": { chapter: "第 19 章", page: "P91", nameZh: "基督化的金龍", nameEn: "Golden Christed Dragon" },
-        "12_Gold and Silver Violet Flame Dragon_p42.jpg": { chapter: "第 30 章", page: "P143", nameZh: "金銀紫焰龍", nameEn: "Gold and Silver Violet Flame Dragon" },
-        "13_Lilac Fire Dragon_p44.jpg": { chapter: "第 20 章", page: "P97", nameZh: "淡紫色火龍", nameEn: "Lilac Fire Dragon" },
-        "14_Quan Yin's Pink Dragon_p46.jpg": { chapter: "第 33 章", page: "P159", nameZh: "觀音的粉紅龍", nameEn: "Quan Yin's Pink Dragon" },
-        "15_Archangel Gabriel's Dragon_p48.jpg": { chapter: "第 34 章", page: "P164", nameZh: "大天使加百列的白色水晶龍", nameEn: "Archangel Gabriel's Dragon" },
-        "16_Rainbow Dragon_p50.jpg": { chapter: "第 21 章", page: "P101", nameZh: "七彩龍", nameEn: "Rainbow Dragon" },
-        "17_Black Dragon_p52.jpg": { chapter: "第 22 章", page: "P105", nameZh: "黑龍", nameEn: "Black Dragon" },
-        "18_Emerald Dragon_p54.jpg": { chapter: "第 35 章", page: "P168", nameZh: "大天使拉斐爾的祖母綠龍", nameEn: "Emerald Dragon" },
-        "19_Silver Dragon_p56.jpg": { chapter: "第 23 章", page: "P109", nameZh: "銀龍", nameEn: "Silver Dragon" },
-        "20_Orange Dragon_p58.jpg": { chapter: "第 24 章", page: "P113", nameZh: "橙龍", nameEn: "Orange Dragon" },
-        "21_Deep Blue Dragon_p60.jpg": { chapter: "第 37 章", page: "P176", nameZh: "大天使麥可的深藍龍", nameEn: "Deep Blue Dragon" },
-        "22_Crystal Yellow Dragon_p62.jpg": { chapter: "第 36 章", page: "P172", nameZh: "大天使約菲爾的水晶黃龍", nameEn: "Crystal Yellow Dragon" },
-        "23_Green Dragon_p64.jpg": { chapter: "第 25 章", page: "P118", nameZh: "青龍", nameEn: "Green Dragon" },
-        "24_Golden Orange Dragon_p66.jpg": { chapter: "第 39 章", page: "P185", nameZh: "大天使麥達昶的金色橙龍", nameEn: "Golden Orange Dragon" },
-        "25_Sunshine Yellow Dragon_p68.jpg": { chapter: "第 38 章", page: "P180", nameZh: "大天使費利耶的陽光黃龍", nameEn: "Sunshine Yellow Dragon" },
-        "26_Royal Blue Gold Dragon_p70.jpg": { chapter: "第 26 章", page: "P122", nameZh: "寶藍金龍", nameEn: "Royal Blue Gold Dragon" },
-        "27_Magenta Dragon_p72.jpg": { chapter: "第 32 章", page: "P154", nameZh: "大天使馬利爾的洋紅龍", nameEn: "Magenta Dragon" },
-        "28_Black Dragon from Saturn_p74.jpg": { chapter: "第 47 章", page: "P232", nameZh: "來自土星的黑龍", nameEn: "Black Dragon from Saturn" },
-        "29_Thor's Red, black and Gold Dragon_p76.jpg": { chapter: "第 31 章", page: "P149", nameZh: "雷神索爾的紅黑金龍", nameEn: "Thor's Red, Black and Gold Dragon" },
-        "30_Rose Pink Dragon_p80.jpg": { chapter: "第 27 章", page: "P126", nameZh: "玫瑰粉龍", nameEn: "Rose Pink Dragon" },
-        "31_Aquamarine Dragon from Neptune_p82.jpg": { chapter: "第 41 章", page: "P199", nameZh: "來自海王星的海藍寶龍", nameEn: "Aquamarine Dragon from Neptune" },
-        "32_Pure White Dragon from Orion_p84.jpg": { chapter: "第 48 章", page: "P237", nameZh: "來自獵戶座的純白龍", nameEn: "Pure White Dragon from Orion" },
-        "33_Blue Dragon from the Pleiades_p86.jpg": { chapter: "第 49 章", page: "P241", nameZh: "來自昴宿星團的藍龍", nameEn: "Blue Dragon from the Pleiades" },
-        "34_Green-Gold Dragon from Sirius_p88.jpg": { chapter: "第 50 章", page: "P247", nameZh: "來自天狼星的綠金龍", nameEn: "Green-Gold Dragon from Sirius" },
-        "35_Silver Lunar Dragon_p90.jpg": { chapter: "第 51 章", page: "P252", nameZh: "銀月龍", nameEn: "Silver Lunar Dragon" },
-        "36_Golden Solar Dragon_p92.jpg": { chapter: "第 52 章", page: "P256", nameZh: "來自赫利俄斯的金色太陽龍", nameEn: "Golden Solar Dragon" },
-        "37_Dusky Pink Dragon from Andromeda_p94.jpg": { chapter: "第 40 章", page: "P192", nameZh: "來自仙女座的暗粉龍", nameEn: "Dusky Pink Dragon from Andromeda" },
-        "38_Orange-Gold Dragon from Arcturus_p96.jpg": { chapter: "第 53 章", page: "P261", nameZh: "來自大角星的橙金龍", nameEn: "Orange-Gold Dragon from Arcturus" },
-        "39_White-Gold Dragon from Lyra_p98.jpg": { chapter: "第 54 章", page: "P266", nameZh: "來自天琴座的白金龍", nameEn: "White-Gold Dragon from Lyra" },
-        "40_Golden Atlantean Dragon_p100.jpg": { chapter: "第 28 章", page: "P131", nameZh: "金色亞特蘭提斯龍", nameEn: "Golden Atlantean Dragon" },
-        "41_Dark Blue Galactic Dragon_p104.jpg": { chapter: "第 55 章", page: "P272", nameZh: "暗藍銀河龍", nameEn: "Dark Blue Galactic Dragon" },
-        "42_Alpha Dragon_p106.jpg": { chapter: "第 56 章", page: "P278", nameZh: "阿爾法龍", nameEn: "Alpha Dragon" },
-        "43_Omega Dragon_p108.jpg": { chapter: "第 57 章", page: "P282", nameZh: "歐米茄龍", nameEn: "Omega Dragon" },
-        "44_Source Dragon_p110.jpg": { chapter: "第 58 章", page: "P286", nameZh: "本源龍", nameEn: "Source Dragon" }
-    };
 
     let deck = [];
 
     function resetDeck() {
-        deck = [...CARD_FILES];
-        // 清空展示區
-        document.getElementById('cardDisplay').innerHTML = '<span style="color: #64748b; font-size: 15px; font-weight: 500;">牌組已重置，請抽卡</span>';
-        document.getElementById('cardInfoBlock').style.display = 'none';
+        deck = [...CARD_DATA];
+        document.getElementById('cardDisplay').innerHTML = '<span style="color: #94a3b8; font-size: 16px;">牌組已重置，請抽卡</span>';
+        document.getElementById('cardTitle').innerText = '';
+        document.getElementById('cardPageContainer').innerHTML = '';
         updateStatus();
     }
 
     function updateStatus() {
-        document.getElementById('statusText').innerText = `剩餘卡牌：${deck.length} / ${CARD_FILES.length}`;
+        document.getElementById('statusText').innerText = `剩餘卡牌：${deck.length} / ${CARD_DATA.length}`;
     }
 
-    // 🧠 自動從檔名中提取說明書頁碼 (例如: "01_Earth Dragon_p18.jpg" -> "P.18")
-    function getGuidePageFromFilename(filename) {
-        const pageMatch = filename.match(/_p(\d+)\.jpg$/i);
-        return pageMatch ? `P.${pageMatch[1]}` : '';
-    }
-
-    // 渲染特定卡牌的詳細資訊
-    function displayCardDetails(selectedCard) {
-        // 1. 顯示圖片
-        const displayDiv = document.getElementById('cardDisplay');
-        displayDiv.innerHTML = `<img src="${selectedCard}" alt="${selectedCard}" id="activeCard">`;
+    function parseCardDetails(cardObject) {
+        let filename = cardObject.file;
         
-        // 2. 獲取說明書頁碼（從檔名自動提取）
-        const guidePageNum = getGuidePageFromFilename(selectedCard);
-
-        // 3. 從資料庫讀取並顯示詳細資料
-        const infoBlock = document.getElementById('cardInfoBlock');
-        const cardData = CARD_DATABASE[selectedCard];
+        // 1. 提取名字
+        let name = filename.replace(/^\d+_/, ''); 
+        name = name.replace(/_p\d+\.jpg$/i, ''); 
         
-        if (cardData) {
-            document.getElementById('cardChapter').innerText = `📖 ${cardData.chapter}`;
-            document.getElementById('cardBookPage').innerText = `📘 Book ${cardData.page}`;
-            
-            // 顯示自動提取的說明書頁碼
-            const guideBadge = document.getElementById('cardGuidePage');
-            if (guidePageNum) {
-                guideBadge.innerText = `📙 Guide Book ${guidePageNum}`;
-                guideBadge.style.display = 'inline-block';
-            } else {
-                guideBadge.style.display = 'none';
-            }
+        // 2. 提取原本檔名中的 e-Book 頁數
+        let pageMatch = filename.match(/_p(\d+)\.jpg$/i);
+        let ebookNum = pageMatch ? pageMatch[1] : ''; 
 
-            document.getElementById('cardNameZh').innerText = cardData.nameZh;
-            document.getElementById('cardNameEn').innerText = cardData.nameEn;
-            infoBlock.style.display = 'flex'; // 顯示卡牌資訊
-        } else {
-            // 安全防線：萬一對照表找不到，就顯示純英文名
-            const fallbackName = selectedCard.replace(/^\d+_/, '').replace(/_p\d+\.jpg$/i, '');
-            document.getElementById('cardChapter').innerText = "📖 未知章節";
-            document.getElementById('cardBookPage').innerText = "📘 Book P.00";
-            
-            const guideBadge = document.getElementById('cardGuidePage');
-            if (guidePageNum) {
-                guideBadge.innerText = `📙 Guide Book ${guidePageNum}`;
-                guideBadge.style.display = 'inline-block';
-            } else {
-                guideBadge.style.display = 'none';
-            }
-
-            document.getElementById('cardNameZh').innerText = fallbackName;
-            document.getElementById('cardNameEn').innerText = "";
-            infoBlock.style.display = 'flex';
-        }
+        return {
+            name: name,
+            ebookPage: ebookNum ? `e-Book p.${ebookNum}` : '',
+            bookPage: cardObject.bookPage ? `Book p.${cardObject.bookPage}` : ''
+        };
     }
 
-    // 抽卡功能
     function drawCard() {
         if (deck.length === 0) {
-            // 使用自訂資訊提示
-            const displayDiv = document.getElementById('cardDisplay');
-            displayDiv.innerHTML = '<span style="color: #f43f5e; font-size: 15px; font-weight: 500;">卡牌已經抽完啦！請點擊下方「重新洗牌」按鈕。</span>';
+            alert('卡牌已經抽完啦！請重新洗牌。');
             return;
         }
 
-        // 隨機抽牌
         const randomIndex = Math.floor(Math.random() * deck.length);
-        const selectedCard = deck.splice(randomIndex, 1)[0];
+        // 抽出隨機卡片物件
+        const selectedCardObj = deck.splice(randomIndex, 1)[0];
 
-        // 顯示卡牌細節
-        displayCardDetails(selectedCard);
+        // 顯示圖片
+        const displayDiv = document.getElementById('cardDisplay');
+        displayDiv.innerHTML = `<img src="${selectedCardObj.file}" alt="${selectedCardObj.file}">`;
+        
+        // 解析卡牌資料
+        const details = parseCardDetails(selectedCardObj);
+        
+        // 顯示名字
+        document.getElementById('cardTitle').innerText = details.name;
+        
+        // 顯示雙頁數標籤 (e-Book 與 Book)
+        const pageContainer = document.getElementById('cardPageContainer');
+        let tagsHtml = '';
+        
+        if (details.ebookPage) {
+            tagsHtml += `<span class="card-page tag-ebook">📱 ${details.ebookPage}</span>`;
+        }
+        if (details.bookPage) {
+            tagsHtml += `<span class="card-page tag-book">📖 ${details.bookPage}</span>`;
+        }
+        
+        pageContainer.innerHTML = tagsHtml;
         
         updateStatus();
     }
 
-    // 生成並打開「所有卡牌一覽」彈窗
-    function openAllCards() {
-        const modal = document.getElementById('allCardsModal');
-        const grid = document.getElementById('cardsGrid');
-        
-        // 只有第一次打開時動態渲染，優化效能
-        if (grid.children.length === 0) {
-            CARD_FILES.forEach(filename => {
-                const cardData = CARD_DATABASE[filename] || { nameZh: "未知卡牌", nameEn: "" };
-                
-                // 創建卡牌網格項目
-                const item = document.createElement('div');
-                item.className = 'grid-item';
-                // 點擊後顯示該牌並關閉視窗
-                item.onclick = () => selectCardFromList(filename);
-
-                item.innerHTML = `
-                    <div class="grid-item-img-container">
-                        <img src="${filename}" alt="${cardData.nameZh}" onerror="this.src='https://placehold.co/120x170/1e293b/94a3b8?text=${encodeURIComponent(cardData.nameZh)}'">
-                    </div>
-                    <div class="grid-item-name-zh">${cardData.nameZh}</div>
-                    <div class="grid-item-name-en">${cardData.nameEn}</div>
-                `;
-                
-                grid.appendChild(item);
-            });
-        }
-        
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // 防止底層頁面滾動
-    }
-
-    // 關閉彈窗
-    function closeAllCards() {
-        const modal = document.getElementById('allCardsModal');
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    // 從圖鑑中選擇卡牌直接瀏覽
-    function selectCardFromList(filename) {
-        // 1. 顯示該牌詳細資訊
-        displayCardDetails(filename);
-        
-        // 2. 從目前的剩餘牌組（deck）中，將這張牌移除，確保不重複抽到
-        const cardIndex = deck.indexOf(filename);
-        if (cardIndex > -1) {
-            deck.splice(cardIndex, 1);
-        }
-        
-        // 3. 更新狀態顯示
-        updateStatus();
-        
-        // 4. 關閉彈窗
-        closeAllCards();
-    }
-
-    // 點擊彈窗背景亦可關閉
-    document.getElementById('allCardsModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeAllCards();
-        }
-    });
-
-    // 啟動初始化
     resetDeck();
 </script>
 
