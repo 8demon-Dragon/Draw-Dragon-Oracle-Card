@@ -1,666 +1,880 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>飛龍神諭卡隨機抽卡機</title>
-    <style>
-        /* 採用高雅神秘的星空深色調背景 */
-        body { 
-            font-family: 'PingFang HK', 'Helvetica Neue', Arial, sans-serif; 
-            text-align: center; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); 
-            padding: 15px; 
-            color: #f1f5f9; 
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
-        }
-        .container { 
-            max-width: 480px; 
-            width: 100%;
-            margin: auto; 
-            background: rgba(30, 41, 59, 0.7); 
-            backdrop-filter: blur(10px);
-            padding: 20px; 
-            border-radius: 24px; 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); 
-            box-sizing: border-box;
-            position: relative;
-        }
-        h2 { 
-            color: #f8fafc; 
-            margin-top: 5px; 
-            margin-bottom: 15px;
-            font-size: 22px; 
-            letter-spacing: 1.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .card-display { 
-            width: 100%; 
-            height: 440px; 
-            border: 2px dashed rgba(148, 163, 184, 0.3); 
-            border-radius: 18px; 
-            margin: 15px 0; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden; 
-            background: rgba(15, 23, 42, 0.6); 
-            position: relative;
-        }
-        .card-display img { 
-            max-width: 95%; 
-            max-height: 95%; 
-            object-fit: contain; 
-            box-shadow: 0 12px 24px rgba(0,0,0,0.5); 
-            border-radius: 14px; 
-            animation: cardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        /* 抽卡時的魔法漸變放大動畫 */
-        @keyframes cardReveal {
-            0% {
-                opacity: 0;
-                transform: scale(0.9) translateY(10px);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>飛龍神諭卡隨機抽卡機</title>
+<style>
+/* 採用高雅神秘的星空深色調背景 */
+body {
+font-family: 'PingFang HK', 'Helvetica Neue', Arial, sans-serif;
+text-align: center;
+background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+padding: 15px;
+color: #f1f5f9;
+margin: 0;
+min-height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+overflow-x: hidden;
+}
+.container {
+max-width: 480px;
+width: 100%;
+margin: auto;
+background: rgba(30, 41, 59, 0.7);
+backdrop-filter: blur(10px);
+padding: 20px;
+border-radius: 24px;
+border: 1px solid rgba(255, 255, 255, 0.1);
+box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+box-sizing: border-box;
+position: relative;
+}
+h2 {
+color: #f8fafc;
+margin-top: 5px;
+margin-bottom: 15px;
+font-size: 22px;
+letter-spacing: 1.5px;
+text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+}
+.card-display {
+width: 100%;
+height: 440px;
+border: 2px dashed rgba(148, 163, 184, 0.3);
+border-radius: 18px;
+margin: 15px 0;
+display: flex;
+align-items: center;
+justify-content: center;
+overflow: hidden;
+background: rgba(15, 23, 42, 0.6);
+position: relative;
+}
+.card-display img {
+max-width: 95%;
+max-height: 95%;
+object-fit: contain;
+box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+border-radius: 14px;
+animation: cardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
-        /* 卡片詳細資訊區塊 */
-        .card-info { 
-            margin: 15px 0; 
-            min-height: 110px; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(15, 23, 42, 0.4);
-            border-radius: 16px;
-            padding: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        /* 章節與頁數標籤 */
-        .badge-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 6px;
-            margin-bottom: 10px;
-        }
-        .badge-chapter { 
-            font-size: 11px; 
-            color: #ffffff; 
-            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); /* 漸變紫色 */
-            padding: 4px 10px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            box-shadow: 0 2px 4px rgba(124, 58, 237, 0.3);
-        }
-        .badge-ebook-page { 
-            font-size: 11px; 
-            color: #ffffff; 
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); /* 漸變藍色 - 電子書 */
-            padding: 4px 10px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
-        }
-        .badge-book-page { 
-            font-size: 11px; 
-            color: #ffffff; 
-            background: linear-gradient(135deg, #10b981 0%, #047857 100%); /* 漸變翠綠色 - 實體書 */
-            padding: 4px 10px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
-        }
-        .badge-guide-page { 
-            font-size: 11px; 
-            color: #ffffff; 
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); /* 漸變橙色 - 英文圖卡手冊 */
-            padding: 4px 10px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            box-shadow: 0 2px 4px rgba(217, 119, 6, 0.3);
-        }
-        
-        /* 中英文名稱 */
-        .name-zh { 
-            font-size: 20px; 
-            font-weight: bold; 
-            color: #f8fafc; 
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
-        }
-        .name-en { 
-            font-size: 13px; 
-            color: #94a3b8; 
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-        
-        /* 按鈕設計 */
-        .btn { 
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
-            color: white; 
-            border: none; 
-            padding: 14px 24px; 
-            font-size: 18px; 
-            border-radius: 14px; 
-            cursor: pointer; 
-            width: 100%; 
-            margin-bottom: 12px; 
-            font-weight: bold; 
-            transition: all 0.2s ease; 
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-            letter-spacing: 1px;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .btn:active { 
-            transform: scale(0.98);
-            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
-        }
-        
-        /* 多重控制按鈕排版 */
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        .btn-secondary { 
-            background: linear-gradient(135deg, #475569 0%, #334155 100%);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            font-size: 14px;
-            padding: 10px 15px;
-            border-radius: 12px;
-            margin-bottom: 0;
-            width: auto;
-        }
-        .btn-view-all {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            box-shadow: 0 4px 12px rgba(3, 105, 161, 0.2);
-            font-size: 14px;
-            padding: 10px 15px;
-            border-radius: 12px;
-            margin-bottom: 0;
-            width: auto;
-        }
-        .status { 
-            color: #94a3b8; 
-            font-size: 13px; 
-            margin-top: 12px; 
-            margin-bottom: 0;
-            font-weight: 500;
-        }
+/* 抽卡時的魔法漸變放大動畫 */
+@keyframes cardReveal {
+0% {
+opacity: 0;
+transform: scale(0.9) translateY(10px);
+}
+100% {
+opacity: 1;
+transform: scale(1) translateY(0);
+}
+}
 
-        /* 卡牌總覽彈窗樣式 */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        /* 當彈出視窗啟用時的顯示設定 */
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-content {
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 24px;
-            max-width: 520px;
-            width: 90%;
-            max-height: 85vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            transform: scale(0.95) translateY(10px);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .modal-overlay.active .modal-content {
-            transform: scale(1) translateY(0);
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .modal-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #f8fafc;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 24px;
-            cursor: pointer;
-            transition: color 0.2s;
-            padding: 0;
-            line-height: 1;
-        }
-        .modal-close:hover {
-            color: #f1f5f9;
-        }
-        .modal-body {
-            overflow-y: auto;
-            padding: 16px;
-            flex: 1;
-        }
-        
-        /* 卡牌格線排列 */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-        .grid-item {
-            background: rgba(15, 23, 42, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
-            padding: 8px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .grid-item:hover {
-            transform: translateY(-4px);
-            background: rgba(124, 58, 237, 0.15);
-            border-color: rgba(124, 58, 237, 0.4);
-            box-shadow: 0 8px 16px rgba(124, 58, 237, 0.1);
-        }
-        .grid-item-img-container {
-            width: 100%;
-            height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border-radius: 8px;
-            background: rgba(15, 23, 42, 0.8);
-            margin-bottom: 8px;
-        }
-        .grid-item-img-container img {
-            max-width: 95%;
-            max-height: 95%;
-            object-fit: contain;
-        }
-        .grid-item-name-zh {
-            font-size: 14px;
-            font-weight: bold;
-            color: #f1f5f9;
-            margin-bottom: 2px;
-        }
-        .grid-item-name-en {
-            font-size: 10px;
-            color: #94a3b8;
-            text-align: center;
-            max-width: 95%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+/* 卡片詳細資訊區塊 */
+.card-info {
+margin: 15px 0;
+min-height: 110px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background: rgba(15, 23, 42, 0.4);
+border-radius: 16px;
+padding: 12px;
+border: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-        /* 專為小螢幕（例如 iPhone mini）設計的響應式設定 */
-        @media (max-width: 440px) {
-            .modal-content {
-                width: 85%; /* 左右收窄，讓畫面左右兩側留出精美的星空比例 */
-                max-height: 80vh; /* 上下縮減高度，防止在細小螢幕的手機上撐爆頂底 */
-                border-radius: 20px;
-            }
-            .modal-header {
-                padding: 12px 16px;
-            }
-            .modal-title {
-                font-size: 15px; /* 字體微調小 */
-            }
-            .modal-body {
-                padding: 10px;
-            }
-            /* ❌ 此處不對 .grid-item 或 .grid-item-img-container 進行迷你化縮放，維持原本清晰大尺寸 */
-        }
-    </style>
+/* 章節與頁數標籤 */
+.badge-container {
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: 6px;
+margin-bottom: 10px;
+}
+.badge-chapter {
+font-size: 11px;
+color: #ffffff;
+background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+padding: 4px 10px;
+border-radius: 20px;
+font-weight: bold;
+box-shadow: 0 2px 4px rgba(124, 58, 237, 0.3);
+}
+.badge-ebook-page {
+font-size: 11px;
+color: #ffffff;
+background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+padding: 4px 10px;
+border-radius: 20px;
+font-weight: bold;
+box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
+}
+.badge-book-page {
+font-size: 11px;
+color: #ffffff;
+background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+padding: 4px 10px;
+border-radius: 20px;
+font-weight: bold;
+box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+.badge-guide-page {
+font-size: 11px;
+color: #ffffff;
+background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+padding: 4px 10px;
+border-radius: 20px;
+font-weight: bold;
+box-shadow: 0 2px 4px rgba(217, 119, 6, 0.3);
+}
+
+/* 中英文名稱 */
+.name-zh {
+font-size: 20px;
+font-weight: bold;
+color: #f8fafc;
+margin-bottom: 4px;
+letter-spacing: 0.5px;
+}
+.name-en {
+font-size: 13px;
+color: #94a3b8;
+font-weight: 500;
+text-transform: uppercase;
+letter-spacing: 0.8px;
+margin-bottom: 12px;
+}
+
+/* 操作按鈕群組（一左一右，同行顯示） */
+.btn-action-group {
+display: flex;
+width: 95%;
+gap: 10px;
+justify-content: center;
+margin-top: 4px;
+}
+
+/* 訊息/練習 文字內容展示區 */
+.card-content-detail {
+margin: 15px 0;
+background: rgba(15, 23, 42, 0.8);
+border-radius: 16px;
+padding: 16px;
+text-align: left;
+animation: cardReveal 0.4s ease-out forwards;
+}
+.border-info {
+border: 1px solid rgba(168, 85, 247, 0.3);
+}
+.border-practice {
+border: 1px solid rgba(236, 72, 153, 0.3);
+}
+.card-content-detail h3 {
+margin-top: 0;
+margin-bottom: 10px;
+font-size: 16px;
+border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+padding-bottom: 6px;
+}
+.title-info { color: #a855f7; }
+.title-practice { color: #ec4899; }
+
+.card-text-body {
+font-size: 14px;
+line-height: 1.6;
+color: #cbd5e1;
+white-space: pre-line;
+max-height: 300px;
+overflow-y: auto;
+padding-right: 5px;
+}
+.card-text-body::-webkit-scrollbar {
+width: 4px;
+}
+.card-text-body::-webkit-scrollbar-thumb {
+background: rgba(255, 255, 255, 0.2);
+border-radius: 4px;
+}
+
+/* 按鈕設計 */
+.btn {
+background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+color: white;
+border: none;
+padding: 14px 24px;
+font-size: 18px;
+border-radius: 14px;
+cursor: pointer;
+width: 100%;
+margin-bottom: 12px;
+font-weight: bold;
+transition: all 0.2s ease;
+box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+letter-spacing: 1px;
+outline: none;
+-webkit-tap-highlight-color: transparent;
+}
+.btn:active {
+transform: scale(0.98);
+}
+.btn-read-content {
+background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+font-size: 14px;
+padding: 10px 0;
+margin-top: 0;
+border-radius: 10px;
+flex: 1;
+margin-bottom: 0;
+}
+.btn-read-content:hover {
+box-shadow: 0 4px 15px rgba(139, 92, 246, 0.5);
+}
+.btn-practice {
+background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+font-size: 14px;
+padding: 10px 0;
+margin-top: 0;
+border-radius: 10px;
+flex: 1;
+margin-bottom: 0;
+}
+.btn-practice:hover {
+box-shadow: 0 4px 15px rgba(236, 72, 153, 0.5);
+}
+.btn-group {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 10px;
+margin-bottom: 12px;
+}
+.btn-secondary {
+background: linear-gradient(135deg, #475569 0%, #334155 100%);
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+font-size: 14px;
+padding: 10px 15px;
+border-radius: 12px;
+margin-bottom: 0;
+width: auto;
+}
+.btn-view-all {
+background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+box-shadow: 0 4px 12px rgba(3, 105, 161, 0.2);
+font-size: 14px;
+padding: 10px 15px;
+border-radius: 12px;
+margin-bottom: 0;
+width: auto;
+}
+.status {
+color: #94a3b8;
+font-size: 13px;
+margin-top: 12px;
+margin-bottom: 0;
+font-weight: 500;
+}
+
+/* 卡牌總覽彈窗樣式 */
+.modal-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(15, 23, 42, 0.85);
+backdrop-filter: blur(12px);
+z-index: 999;
+display: flex;
+align-items: center;
+justify-content: center;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.3s ease;
+}
+.modal-overlay.active {
+opacity: 1;
+pointer-events: auto;
+}
+.modal-content {
+background: rgba(30, 41, 59, 0.95);
+border: 1px solid rgba(255, 255, 255, 0.15);
+border-radius: 24px;
+max-width: 520px;
+width: 90%;
+max-height: 85vh;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+transform: scale(0.95) translateY(10px);
+transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal-overlay.active .modal-content {
+transform: scale(1) translateY(0);
+}
+.modal-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 16px 20px;
+border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.modal-title {
+font-size: 18px;
+font-weight: bold;
+color: #f8fafc;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+.modal-close {
+background: none;
+border: none;
+color: #94a3b8;
+font-size: 24px;
+cursor: pointer;
+transition: color 0.2s;
+padding: 0;
+line-height: 1;
+}
+.modal-close:hover {
+color: #f1f5f9;
+}
+.modal-body {
+overflow-y: auto;
+padding: 16px;
+flex: 1;
+}
+.cards-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 12px;
+}
+.grid-item {
+background: rgba(15, 23, 42, 0.4);
+border: 1px solid rgba(255, 255, 255, 0.05);
+border-radius: 14px;
+padding: 8px;
+cursor: pointer;
+transition: all 0.25s ease;
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+.grid-item:hover {
+transform: translateY(-4px);
+background: rgba(124, 58, 237, 0.15);
+border-color: rgba(124, 58, 237, 0.4);
+box-shadow: 0 8px 16px rgba(124, 58, 237, 0.1);
+}
+.grid-item-img-container {
+width: 100%;
+height: 140px;
+display: flex;
+align-items: center;
+justify-content: center;
+overflow: hidden;
+border-radius: 8px;
+background: rgba(15, 23, 42, 0.8);
+margin-bottom: 8px;
+}
+.grid-item-img-container img {
+max-width: 95%;
+max-height: 95%;
+object-fit: contain;
+}
+.grid-item-name-zh {
+font-size: 14px;
+font-weight: bold;
+color: #f1f5f9;
+margin-bottom: 2px;
+}
+.grid-item-name-en {
+font-size: 10px;
+color: #94a3b8;
+text-align: center;
+max-width: 95%;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+@media (max-width: 440px) {
+.modal-content {
+width: 85%;
+max-height: 80vh;
+border-radius: 20px;
+}
+.modal-header {
+padding: 12px 16px;
+}
+.modal-title {
+font-size: 15px;
+}
+.modal-body {
+padding: 10px;
+}
+}
+</style>
 </head>
 <body>
-
 <div class="container">
-    <h2>🐲 飛龍神諭卡隨機抽卡</h2>
-    
-    <button class="btn" onclick="drawCard()">🐉 抽一張龍神諭卡！</button>
-
-    <div class="card-display" id="cardDisplay">
-        <span style="color: #64748b; font-size: 15px; font-weight: 500;">點擊上方按鈕開始抽卡</span>
-    </div>
-    
-    <!-- 卡片詳細資訊區塊 -->
-    <div class="card-info" id="cardInfoBlock" style="display: none;">
-        <div class="badge-container">
-            <span class="badge-chapter" id="cardChapter"></span>
-            <span class="badge-ebook-page" id="cardEBookPage"></span>
-            <span class="badge-book-page" id="cardPhysicalBookPage"></span>
-            <span class="badge-guide-page" id="cardGuidePage"></span>
-        </div>
-        <div class="name-zh" id="cardNameZh"></div>
-        <div class="name-en" id="cardNameEn"></div>
-    </div>
-    
-    <!-- 功能按鈕組 -->
-    <div class="btn-group">
-        <button class="btn btn-reset btn-secondary" onclick="resetDeck()">🔄 重新洗牌</button>
-        <button class="btn btn-view-all" onclick="openAllCards()">📋 所有卡牌一覽</button>
-    </div>
-    
-    <p class="status" id="statusText">剩餘卡牌：0 / 44</p>
+<h2>🐲 飛龍神諭卡隨機抽卡</h2>
+<button class="btn" onclick="drawCard()">🐉 抽一張龍神諭卡！</button>
+<div class="card-display" id="cardDisplay">
+<span style="color: #64748b; font-size: 15px; font-weight: 500;">點擊上方按鈕開始抽卡</span>
 </div>
-
-<!-- 所有卡牌一覽 彈窗 -->
+<div class="card-info" id="cardInfoBlock" style="display: none;">
+<div class="badge-container">
+<span class="badge-chapter" id="cardChapter"></span>
+<span class="badge-ebook-page" id="cardEBookPage"></span>
+<span class="badge-book-page" id="cardPhysicalBookPage"></span>
+<span class="badge-guide-page" id="cardGuidePage"></span>
+</div>
+<div class="name-zh" id="cardNameZh"></div>
+<div class="name-en" id="cardNameEn"></div>
+<div class="btn-action-group">
+<button class="btn btn-read-content" id="btnReadContent" onclick="toggleCardContent('info')">✨ 龍族信息</button>
+<button class="btn btn-practice" id="btnPractice" onclick="toggleCardContent('practice')">🧘 專屬練習</button>
+</div>
+</div>
+<div class="card-content-detail" id="cardContentDetail" style="display: none;">
+<h3 id="contentDetailTitle">✨ 龍族信息</h3>
+<div class="card-text-body" id="cardTextBody"></div>
+</div>
+<div class="btn-group">
+<button class="btn btn-reset btn-secondary" onclick="resetDeck()">🔄 重新洗牌</button>
+<button class="btn btn-view-all" onclick="openAllCards()">📋 所有卡牌一覽</button>
+</div>
+<p class="status" id="statusText">剩餘卡牌：0 / 44</p>
+</div>
 <div class="modal-overlay" id="allCardsModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <div class="modal-title">📋 飛龍神諭卡全套圖鑑 (44張)</div>
-            <button class="modal-close" onclick="closeAllCards()">&times;</button>
-        </div>
-        <div class="modal-body" id="modalBody">
-            <div class="cards-grid" id="cardsGrid">
-                <!-- 由 JavaScript 動態生成卡牌項目 -->
-            </div>
-        </div>
-    </div>
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title">📋 飛龍神諭卡全套圖鑑 (44張)</div>
+<button class="modal-close" onclick="closeAllCards()">&times;</button>
 </div>
-
+<div class="modal-body" id="modalBody">
+<div class="cards-grid" id="cardsGrid"></div>
+</div>
+</div>
+</div>
 <script>
-    // 1. 完整 44 張卡片檔名
-    const CARD_FILES = [
-        "01_Earth Dragon_p18.jpg", 
-        "02_Air Dragon_p20.jpg",
-        "03_Fire Dragon_p22.jpg",
-        "04_Water Dragon_p24.jpg",
-        "05_Earth and Air Dragon_p26.jpg",
-        "06_Earth and Fire Dragon_p28.jpg",
-        "07_Earth and Water Dragon_p30.jpg",
-        "08_Air and Fire Dragon_p32.jpg",
-        "09_Air and Water Dragon_p34.jpg",
-        "10_Fire and Water Dragon_p36.jpg",
-        "11_Golden Christed Dragon_p40.jpg",
-        "12_Gold and Silver Violet Flame Dragon_p42.jpg",
-        "13_Lilac Fire Dragon_p44.jpg",
-        "14_Quan Yin's Pink Dragon_p46.jpg",
-        "15_Archangel Gabriel's Dragon_p48.jpg",
-        "16_Rainbow Dragon_p50.jpg",
-        "17_Black Dragon_p52.jpg",
-        "18_Emerald Dragon_p54.jpg",
-        "19_Silver Dragon_p56.jpg",
-        "20_Orange Dragon_p58.jpg",
-        "21_Deep Blue Dragon_p60.jpg",
-        "22_Crystal Yellow Dragon_p62.jpg",
-        "23_Green Dragon_p64.jpg",
-        "24_Golden Orange Dragon_p66.jpg",
-        "25_Sunshine Yellow Dragon_p68.jpg",
-        "26_Royal Blue Gold Dragon_p70.jpg",
-        "27_Magenta Dragon_p72.jpg",
-        "28_Black Dragon from Saturn_p74.jpg",
-        "29_Thor's Red, black and Gold Dragon_p76.jpg",
-        "30_Rose Pink Dragon_p80.jpg",
-        "31_Aquamarine Dragon from Neptune_p82.jpg",
-        "32_Pure White Dragon from Orion_p84.jpg",
-        "33_Blue Dragon from the Pleiades_p86.jpg",
-        "34_Green-Gold Dragon from Sirius_p88.jpg",
-        "35_Silver Lunar Dragon_p90.jpg",
-        "36_Golden Solar Dragon_p92.jpg",
-        "37_Dusky Pink Dragon from Andromeda_p94.jpg",
-        "38_Orange-Gold Dragon from Arcturus_p96.jpg",
-        "39_White-Gold Dragon from Lyra_p98.jpg",
-        "40_Golden Atlantean Dragon_p100.jpg",
-        "41_Dark Blue Galactic Dragon_p104.jpg",
-        "42_Alpha Dragon_p106.jpg",
-        "43_Omega Dragon_p108.jpg",
-        "44_Source Dragon_p110.jpg"
-    ];
+// 1. 完整 44 張卡片檔名
+const CARD_FILES = [
+"01_Earth Dragon_p18.jpg", "02_Air Dragon_p20.jpg", "03_Fire Dragon_p22.jpg", "04_Water Dragon_p24.jpg",
+"05_Earth and Air Dragon_p26.jpg", "06_Earth and Fire Dragon_p28.jpg", "07_Earth and Water Dragon_p30.jpg",
+"08_Air and Fire Dragon_p32.jpg", "09_Air and Water Dragon_p34.jpg", "10_Fire and Water Dragon_p36.jpg",
+"11_Golden Christed Dragon_p40.jpg", "12_Gold and Silver Violet Flame Dragon_p42.jpg", "13_Lilac Fire Dragon_p44.jpg",
+"14_Quan Yin's Pink Dragon_p46.jpg", "15_Archangel Gabriel's Dragon_p48.jpg", "16_Rainbow Dragon_p50.jpg",
+"17_Black Dragon_p52.jpg", "18_Emerald Dragon_p54.jpg", "19_Silver Dragon_p56.jpg", "20_Orange Dragon_p58.jpg",
+"21_Deep Blue Dragon_p60.jpg", "22_Crystal Yellow Dragon_p62.jpg", "23_Green Dragon_p64.jpg", "24_Golden Orange Dragon_p66.jpg",
+"25_Sunshine Yellow Dragon_p68.jpg", "26_Royal Blue Gold Dragon_p70.jpg", "27_Magenta Dragon_p72.jpg",
+"28_Black Dragon from Saturn_p74.jpg", "29_Thor's Red, black and Gold Dragon_p76.jpg", "30_Rose Pink Dragon_p80.jpg",
+"31_Aquamarine Dragon from Neptune_p82.jpg", "32_Pure White Dragon from Orion_p84.jpg", "33_Blue Dragon from the Pleiades_p86.jpg",
+"34_Green-Gold Dragon from Sirius_p88.jpg", "35_Silver Lunar Dragon_p90.jpg", "36_Golden Solar Dragon_p92.jpg",
+"37_Dusky Pink Dragon from Andromeda_p94.jpg", "38_Orange-Gold Dragon from Arcturus_p96.jpg", "39_White-Gold Dragon from Lyra_p98.jpg",
+"40_Golden Atlantean Dragon_p100.jpg", "41_Dark Blue Galactic Dragon_p104.jpg", "42_Alpha Dragon_p106.jpg",
+"43_Omega Dragon_p108.jpg", "44_Source Dragon_p110.jpg"
+];
 
-    // 2. 完整 44 張卡牌資料庫對照表（chapter = 書本章節，ebookPage = 電子書頁數，bookPage = 根據龍書目錄1.png至5.png精確校對的實體書頁數）
-    // 💡 實體書頁數已對照實體書中文版目錄，100% 精準匹配！
-    const CARD_DATABASE = {
-        "01_Earth Dragon_p18.jpg": { chapter: "第 8 章", ebookPage: "P38", bookPage: "P59", nameZh: "土龍", nameEn: "Earth Dragon" },
-        "02_Air Dragon_p20.jpg": { chapter: "第 9 章", ebookPage: "P45", bookPage: "P67", nameZh: "風龍", nameEn: "Air Dragon" },
-        "03_Fire Dragon_p22.jpg": { chapter: "第 10 章", ebookPage: "P50", bookPage: "P74", nameZh: "火龍", nameEn: "Fire Dragon" },
-        "04_Water Dragon_p24.jpg": { chapter: "第 11 章", ebookPage: "P54", bookPage: "P80", nameZh: "水龍", nameEn: "Water Dragon" },
-        "05_Earth and Air Dragon_p26.jpg": { chapter: "第 12 章", ebookPage: "P59", bookPage: "P86", nameZh: "土風龍", nameEn: "Earth and Air Dragon" },
-        "06_Earth and Fire Dragon_p28.jpg": { chapter: "第 13 章", ebookPage: "P62", bookPage: "P89", nameZh: "土火龍", nameEn: "Earth and Fire Dragon" },
-        "07_Earth and Water Dragon_p30.jpg": { chapter: "第 14 章", ebookPage: "P66", bookPage: "P94", nameZh: "土水龍", nameEn: "Earth and Water Dragon" },
-        "08_Air and Fire Dragon_p32.jpg": { chapter: "第 15 章", ebookPage: "P70", bookPage: "P99", nameZh: "風火龍", nameEn: "Air and Fire Dragon" },
-        "09_Air and Water Dragon_p34.jpg": { chapter: "第 16 章", ebookPage: "P74", bookPage: "P104", nameZh: "風水龍", nameEn: "Air and Water Dragon" },
-        "10_Fire and Water Dragon_p36.jpg": { chapter: "第 17 章", ebookPage: "P80", bookPage: "P111", nameZh: "火水龍", nameEn: "Fire and Water Dragon" },
-        "11_Golden Christed Dragon_p40.jpg": { chapter: "第 19 章", ebookPage: "P91", bookPage: "P125", nameZh: "基督化的金龍", nameEn: "Golden Christed Dragon" },
-        "12_Gold and Silver Violet Flame Dragon_p42.jpg": { chapter: "第 30 章", ebookPage: "P143", bookPage: "P189", nameZh: "金銀紫焰龍", nameEn: "Gold and Silver Violet Flame Dragon" },
-        "13_Lilac Fire Dragon_p44.jpg": { chapter: "第 20 章", ebookPage: "P97", bookPage: "P132", nameZh: "淡紫色火龍", nameEn: "Lilac Fire Dragon" },
-        "14_Quan Yin's Pink Dragon_p46.jpg": { chapter: "第 33 章", ebookPage: "P159", bookPage: "P209", nameZh: "觀音的粉紅龍", nameEn: "Quan Yin's Pink Dragon" },
-        "15_Archangel Gabriel's Dragon_p48.jpg": { chapter: "第 34 章", ebookPage: "P164", bookPage: "P215", nameZh: "大天使加百列的白色水晶龍", nameEn: "Archangel Gabriel's Dragon" },
-        "16_Rainbow Dragon_p50.jpg": { chapter: "第 21 章", ebookPage: "P101", bookPage: "P137", nameZh: "七彩龍", nameEn: "Rainbow Dragon" },
-        "17_Black Dragon_p52.jpg": { chapter: "第 22 章", ebookPage: "P105", bookPage: "P142", nameZh: "黑龍", nameEn: "Black Dragon" },
-        "18_Emerald Dragon_p54.jpg": { chapter: "第 35 章", ebookPage: "P168", bookPage: "P220", nameZh: "大天使拉斐爾的祖母綠龍", nameEn: "Emerald Dragon" },
-        "19_Silver Dragon_p56.jpg": { chapter: "第 23 章", ebookPage: "P109", bookPage: "P147", nameZh: "銀龍", nameEn: "Silver Dragon" },
-        "20_Orange Dragon_p58.jpg": { chapter: "第 24 章", ebookPage: "P113", bookPage: "P152", nameZh: "橙龍", nameEn: "Orange Dragon" },
-        "21_Deep Blue Dragon_p60.jpg": { chapter: "第 37 章", ebookPage: "P176", bookPage: "P230", nameZh: "大天使麥可的深藍龍", nameEn: "Deep Blue Dragon" },
-        "22_Crystal Yellow Dragon_p62.jpg": { chapter: "第 36 章", ebookPage: "P172", bookPage: "P225", nameZh: "大天使約菲爾的水晶黃龍", nameEn: "Crystal Yellow Dragon" },
-        "23_Green Dragon_p64.jpg": { chapter: "第 25 章", ebookPage: "P118", bookPage: "P158", nameZh: "青龍", nameEn: "Green Dragon" },
-        "24_Golden Orange Dragon_p66.jpg": { chapter: "第 39 章", ebookPage: "P185", bookPage: "P241", nameZh: "大天使麥達昶的金色橙龍", nameEn: "Golden Orange Dragon" },
-        "25_Sunshine Yellow Dragon_p68.jpg": { chapter: "第 38 章", ebookPage: "P180", bookPage: "P235", nameZh: "大天使費利耶的陽光黃龍", nameEn: "Sunshine Yellow Dragon" },
-        "26_Royal Blue Gold Dragon_p70.jpg": { chapter: "第 26 章", ebookPage: "P122", bookPage: "P163", nameZh: "寶藍金龍", nameEn: "Royal Blue Gold Dragon" },
-        "27_Magenta Dragon_p72.jpg": { chapter: "第 32 章", ebookPage: "P154", bookPage: "P202", nameZh: "大天使馬利爾的洋紅龍", nameEn: "Magenta Dragon" },
-        "28_Black Dragon from Saturn_p74.jpg": { chapter: "第 47 章", ebookPage: "P232", bookPage: "P301", nameZh: "來自土星的黑龍", nameEn: "Black Dragon from Saturn" },
-        "29_Thor's Red, black and Gold Dragon_p76.jpg": { chapter: "第 31 章", ebookPage: "P149", bookPage: "P196", nameZh: "雷神索爾的紅黑金龍", nameEn: "Thor's Red, Black and Gold Dragon" },
-        "30_Rose Pink Dragon_p80.jpg": { chapter: "第 27 章", ebookPage: "P126", bookPage: "P168", nameZh: "玫瑰粉龍", nameEn: "Rose Pink Dragon" },
-        "31_Aquamarine Dragon from Neptune_p82.jpg": { chapter: "第 41 章", ebookPage: "P199", bookPage: "P261", nameZh: "來自海王星的海藍寶龍", nameEn: "Aquamarine Dragon from Neptune" },
-        "32_Pure White Dragon from Orion_p84.jpg": { chapter: "第 48 章", ebookPage: "P237", bookPage: "P307", nameZh: "來自獵戶座的純白龍", nameEn: "Pure White Dragon from Orion" },
-        "33_Blue Dragon from the Pleiades_p86.jpg": { chapter: "第 49 章", ebookPage: "P241", bookPage: "P313", nameZh: "來自昴宿星團的藍龍", nameEn: "Blue Dragon from the Pleiades" },
-        "34_Green-Gold Dragon from Sirius_p88.jpg": { chapter: "第 50 章", ebookPage: "P247", bookPage: "P321", nameZh: "來自天狼星的綠金龍", nameEn: "Green-Gold Dragon from Sirius" },
-        "35_Silver Lunar Dragon_p90.jpg": { chapter: "第 51 章", ebookPage: "P252", bookPage: "P327", nameZh: "銀月龍", nameEn: "Silver Lunar Dragon" },
-        "36_Golden Solar Dragon_p92.jpg": { chapter: "第 52 章", ebookPage: "P256", bookPage: "P332", nameZh: "來自赫利俄斯的金色太陽龍", nameEn: "Golden Solar Dragon" },
-        "37_Dusky Pink Dragon from Andromeda_p94.jpg": { chapter: "第 40 章", ebookPage: "P192", bookPage: "P251", nameZh: "來自仙女座的暗粉龍", nameEn: "Dusky Pink Dragon from Andromeda" },
-        "38_Orange-Gold Dragon from Arcturus_p96.jpg": { chapter: "第 53 章", ebookPage: "P261", bookPage: "P338", nameZh: "來自大角星的橙金龍", nameEn: "Orange-Gold Dragon from Arcturus" },
-        "39_White-Gold Dragon from Lyra_p98.jpg": { chapter: "第 54 章", ebookPage: "P266", bookPage: "P345", nameZh: "來自天琴座的白金龍", nameEn: "White-Gold Dragon from Lyra" },
-        "40_Golden Atlantean Dragon_p100.jpg": { chapter: "第 28 章", ebookPage: "P131", bookPage: "P174", nameZh: "金色亞特蘭提斯龍", nameEn: "Golden Atlantean Dragon" },
-        "41_Dark Blue Galactic Dragon_p104.jpg": { chapter: "第 55 章", ebookPage: "P272", bookPage: "P353", nameZh: "暗藍銀河龍", nameEn: "Dark Blue Galactic Dragon" },
-        "42_Alpha Dragon_p106.jpg": { chapter: "第 56 章", ebookPage: "P278", bookPage: "P361", nameZh: "阿爾法龍", nameEn: "Alpha Dragon" },
-        "43_Omega Dragon_p108.jpg": { chapter: "第 57 章", ebookPage: "P282", bookPage: "P365", nameZh: "歐米茄龍", nameEn: "Omega Dragon" },
-        "44_Source Dragon_p110.jpg": { chapter: "第 58 章", ebookPage: "P286", bookPage: "P370", nameZh: "本源龍", nameEn: "Source Dragon" }
-    };
+// 2. 完整 44 張卡牌資料庫（整合 PDF 文字內容）
+const CARD_DATABASE = {
+"01_Earth Dragon_p18.jpg": {
+chapter: "第 8 章", ebookPage: "P38", bookPage: "P59", nameZh: "土龍", nameEn: "Earth Dragon",
+content: "【土龍（Earth Dragon）的龍族信息】\n\n土龍是土元素精靈，他們熱愛這片土地和我們的星球。他們照顧、維護、豐富、淨化土壤，也與雷伊線（龍脈）一起運作，負責清理雷伊線。土龍可以噴火，燒掉潛伏在地球表面底下的低階頻率。他們也熱愛園藝，幫助你扎根接地，清除你道路上的障礙。\n\n當土龍來到你的身邊，代表你需要將自己的能量「落實接地」。土龍能幫助你與大地的基底和物理世界建立強大的連結，清除你海底輪的恐懼，並為你的生活注入穩定、豐盛與安全的能量。\n\n指引語：\n「我與大地母親連結，我是安全、穩定且豐盛的。」",
+practice: "【土龍的專屬練習：冥想與接地】\n\n找一個舒適的位置坐下或站立，想像你的雙腳腳底像樹根一樣深深扎入大地中心。每一次呼氣，將你內在的焦慮、恐懼與壓力透過樹根傳送給大地母親轉化；每一次吸氣，從地心汲取金黃色的穩定力量，充滿你的海底輪。你可以祈請土龍前來協助，讓這份連結更加穩固。"
+},
+"02_Air Dragon_p20.jpg": {
+chapter: "第 9 章", ebookPage: "P45", bookPage: "P67", nameZh: "風龍", nameEn: "Air Dragon",
+content: "【風龍（Air Dragon）的龍族信息】\n\n風龍是藍色的，他們帶來靈感、希望、輕盈。當一條風龍接近你的時候，他提振你的精神，吹掉你心智裡的蜘蛛網——那些陳舊、堵塞、卡住的思維模式和想法。他們帶來希望，喚起新鮮的點子，激起創造力和更高的願景。風龍可以提升你的意識，使你能夠從更高的視角看見你的人生和模式。\n\n指引語：\n「我的思緒清晰，我張開雙臂迎接神聖的靈感。」",
+practice: "【風龍的專屬練習：清明呼吸法】\n\n選擇一個安靜的空間，閉上雙眼。進行幾次深呼吸。想像一陣清澈清涼的微風吹過你的大腦，帶走所有雜亂的思緒與限制性信念。專注於你的眉心輪，祈請風龍為你帶來直覺的答案。"
+},
+"03_Fire Dragon_p22.jpg": {
+chapter: "第 10 章", ebookPage: "P50", bookPage: "P74", nameZh: "火龍", nameEn: "Fire Dragon",
+content: "【火龍（Fire Dragon）的龍族信息】\n\n這些火紅搭配橙色的龍以及其他火元素精靈，可以燒掉並蛻變低階能量，允許新能量以更高的頻率取代。火龍是大師級清除專家，他們將熾熱的火焰指向你請求他們燒掉的任何東西，蛻變不再有用的低階振動。如果你請求，他們會在你個人、你的住家或你的摯愛周圍，創造一圈乙太火，用於保護和清除對你造成影響的能量。\n\n指引語：\n「我釋放所有舊傷，我內在的火焰強大且溫暖。」",
+practice: "【火龍的專屬練習：光能轉化冥想】\n\n觀想你的太陽神經叢（胃部）有一團耀眼的金色火焰在燃燒。祈請火龍來到你身邊，將你感受到的憤怒、無力感或過去的創傷投入這團火焰中，看著它們被轉化為純淨的生命能量與勇氣。"
+},
+"04_Water Dragon_p24.jpg": {
+chapter: "第 11 章", ebookPage: "P54", bookPage: "P80", nameZh: "水龍", nameEn: "Water Dragon",
+content: "【水龍（Water Dragon）的龍族信息】\n\n水龍是溫和的綠色，像蛇一樣光滑。他們在湖泊和海洋中感到自由自在，也可以隨著宇宙的氣流四處飄流。水龍維持水域中的基督之光不斷運動，為我們的星球服務。他們心胸開闊，不管到哪裡，都散播著宇宙的愛。當你請求水龍滌淨你身體的細胞時，他們必會照辦，這將會使你變得更加明亮。\n\n指引語：\n「我允許情緒自由流動，我安於內在的平靜與療癒。」",
+practice: "【水龍的專屬練習：情感流動靜心】\n\n準備一杯溫水，雙手握住它，閉上眼睛。觀想水龍溫柔的粉藍色或銀色光流包圍著你的心輪。允許自己釋放積壓的淚水或委屈，感受心靈像平靜的湖水一樣得到全面的淨化與滋養。"
+},
+"05_Earth and Air Dragon_p26.jpg": {
+chapter: "第 12 章", ebookPage: "P59", bookPage: "P86", nameZh: "土風龍", nameEn: "Earth and Air Dragon",
+content: "【土風龍（Earth and Air Dragon）的龍族信息】\n\n棕色搭配藍色的土風龍，使你能將你的願景帶出來，然後落實它們。他們的土面向落實你的願景，使你能適當地規劃；風元素用生命力和活力啟發你的願景，也用熱情啟發你傳達你的希望和志向的能力。風土龍是完美的，可以讓你的生命以及你的希望達致平衡，幫助你凌駕於挑戰之上，同時保持腳踏實地。",
+practice: "【土風龍的專屬練習：平衡你的脈輪】\n\n找一個安靜的地方，閉上眼睛。祈請土風龍將深棕色的平衡和天藍色的志向吹進你的十二個揚升脈輪，從地球之星到星系門戶。感受那份平衡與和諧。"
+},
+"06_Earth and Fire Dragon_p28.jpg": {
+chapter: "第 13 章", ebookPage: "P62", bookPage: "P89", nameZh: "土火龍", nameEn: "Earth and Fire Dragon",
+content: "【土火龍（Earth and Fire Dragon）的龍族信息】\n\n這些棕色搭配橙色的龍是非常威力強大的，有土元素的平衡以及火元素的克制狂熱。土火龍總是處於平衡，可以廣大無邊地幫助推動你的事業或家庭生活或其他計畫向前邁進。他們也幫助清理地球的雷伊線，建造並維護五維系統，為新的黃金時代做準備。",
+practice: "【土火龍的專屬練習：照亮你的挑戰】\n\n召喚土火龍來到你身邊，告訴他你面臨的挑戰並請求他幫忙。騎上他的背，俯視著金色線條交錯的五維雷伊線陣，觀想金色基督之光的火焰在那些交叉點上，看見整個世界亮了起來。"
+},
+"07_Earth and Water Dragon_p30.jpg": {
+chapter: "第 14 章", ebookPage: "P66", bookPage: "P94", nameZh: "土水龍", nameEn: "Earth and Water Dragon",
+content: "【土水龍（Earth and Water Dragon）的龍族信息】\n\n這些棕色搭配綠色的龍是溫和而哺育的。土面向提供基礎，你的潛能的種子可以在其中生長，而水則滋養種子，使它們能夠繁茂興旺。當新的機會出現時，這些龍也會幫助你，使你能遇見對的人，打開以前關閉的大門。",
+practice: "【土水龍的專屬練習：讓你的創造力綻放】\n\n畫出一棵樹的輪廓，土壤底下有深深的根。想想你的願景正在開花綻放，拿一支粉紅色筆，在樹枝上畫上這棵樹的全部花朵。召請土水龍，請他們幫忙你滋養這個願景。"
+},
+"08_Air and Fire Dragon_p32.jpg": {
+chapter: "第 15 章", ebookPage: "P70", bookPage: "P99", nameZh: "風火龍", nameEn: "Air and Fire Dragon",
+content: "【風火龍（Air and Fire Dragon）的龍族信息】\n\n這條藍色搭配橙色的龍，是關於愉快而熱情地傳達你的想法。火元素是有創意且熱誠的，藍色面向則是以鼓舞人心的方式與他人分享你的想法。風火龍煽動創造的火焰，激起你的獨創性和想像力。他們使你感覺生氣勃勃，充滿熱忱，能暢所欲言。",
+practice: "【風火龍的專屬練習：放手一搏】\n\n呼喚你的風火龍，告訴他你已經準備好要放手一搏。畫兩座山頂，畫你自己自信地從一座山跳到另一座更高的山。在第二座山頂上畫一扇敞開的金門，將這幅圖像銘記在心。"
+},
+"09_Air and Water Dragon_p34.jpg": {
+chapter: "第 16 章", ebookPage: "P74", bookPage: "P104", nameZh: "風水龍", nameEn: "Air and Water Dragon",
+content: "【風水龍（Air and Water Dragon）的龍族信息】\n\n這些藍色搭配綠色的美麗風水龍輕盈而流暢。風啟發靈感，水則流動，因此兩者在一起，他們為你的人生帶來喜悅和自在。風水龍提升你的振動，幫助你連結到更高的頻率。他們也有一種獨特的方法，幫助你開發你的眉心輪，磨練你的心靈才能。",
+practice: "【風水龍的專屬練習：表達你的靈魂能量】\n\n請求風水龍進入你的能量場，幫助你表達你內在的歌曲。想到什麼音符，就唱什麼音符，好好聆聽並感覺那個音符。嘗試不同的音符，將它們帶入和諧，聚焦在使你的身體感覺美好的音符。"
+},
+"10_Fire and Water Dragon_p36.jpg": {
+chapter: "第 17 章", ebookPage: "P80", bookPage: "P111", nameZh: "火水龍", nameEn: "Fire and Water Dragon",
+content: "【火水龍（Fire and Water Dragon）的龍族信息】\n\n這些色彩鮮豔、橙色搭配綠色的火水龍，是非常強大的運動和改變的力道。火和水一起產生蒸氣，對於推動你在揚升之路上向前邁進，這些龍感到興致勃勃。他們可以幫助將陳舊的關係從你的意識中清理和移除，或是蒸氣清潔你的氣場中的任何乙太污垢。",
+practice: "【火水龍的專屬練習：深層淨化】\n\n呼喚一條橙色搭配綠色的火水龍來到你身邊。請求它以完美的方式發送乙太蒸氣貫穿你全身，進行深度清潔。放輕鬆，允許這事發生，願意接受任何東西正在從你的生命中被移除掉。"
+},
+"11_Golden Christed Dragon_p40.jpg": {
+chapter: "第 19 章", ebookPage: "P91", bookPage: "P125", nameZh: "基督化的金龍", nameEn: "Golden Christed Dragon",
+content: "【基督化的金龍（Golden Christed Dragon）的龍族信息】\n\n這些美麗的龍擁有巨大的金色能量場，他們以基督之光觸動我們所有人。他們從天狼星的已揚升面拉庫美取用九維頻率的金色基督之光，這是目前在這個宇宙中可以得到的最高階基督能量。當這些龍將光注入你的時候，你能夠在細胞層次吸收它，有助於為新的黃金時代建立你的水晶光體。",
+practice: "【基督化的金龍的專屬練習：接收基督之光】\n\n在你的心靈之眼中，放下接地的根，在你自己周圍設置一圈保護。想像將金色的愛吸入你的氣場，吸引一條基督化的金龍。感覺到那條金龍降落在你身邊，邀請你坐在祂的背上，將基督之光的九維金球帶入你可以吸收的維度層級，體驗金色的基督之愛和光在細胞層次流入你體內。"
+},
+"12_Gold and Silver Violet Flame Dragon_p42.jpg": {
+chapter: "第 30 章", ebookPage: "P143", bookPage: "P189", nameZh: "金銀紫焰龍", nameEn: "Gold and Silver Violet Flame Dragon",
+content: "【金銀紫焰龍（Gold and Silver Violet Flame Dragon）的龍族信息】\n\n大天使薩基爾的金銀紫焰龍，攜帶著「紫羅蘭火焰」、「恩典的銀色火焰」和「金色的亞特蘭提斯智慧火焰」。他們能幫助你溫婉地轉化你自己和你身邊的一切，用恩典和智慧蛻變低階能量，將它們轉化成為更高階的東西。他們也保護你的氣場，在周圍設置一道金色火焰的保護圈。",
+practice: "【金銀紫焰龍的專屬練習：在恩典之下療癒】\n\n點燃一根蠟燭，祈請金銀紫焰龍。指揮他們在恩典之下去到某個人、地方或情境，燒掉低階能量。想像他們火速執行你的命令，將他們的乙太之火注入其中，然後看見更高頻的新能量取而代之。覺察到聖哲曼和大天使薩基爾庇佑那個結果。"
+},
+"13_Lilac Fire Dragon_p44.jpg": {
+chapter: "第 20 章", ebookPage: "P97", bookPage: "P132", nameZh: "淡紫色火龍", nameEn: "Lilac Fire Dragon",
+content: "【淡紫色火龍（Lilac Fire Dragon）的龍族信息】\n\n淡紫色火龍攜帶「本源」的「淡紫色火」，那是一種超越的愛和開悟構成的九維能量。他使你能夠平靜而自在地釋放不再有用的一切，提升你的頻率，為你帶來和平、智慧、開悟、喜悅乃至至福。他溫和地洗掉你心輪中保留的任何負面能量，透過神性之愛的力量蛻變老舊。",
+practice: "【淡紫色火龍的專屬練習：點燃自由的火焰】\n\n閉上眼睛，臣服於向你滑過來的淡紫色火龍。吸入他們散發出來的愛的純淨，感應到光散播你全身，滌淨你的器官和你的細胞。感覺到陳舊的束縛和限制在純淨的愛中消融，觀想成千上萬的淡紫色火龍將整個地球保持在「自由的火焰」的淡紫色火之中。"
+},
+"14_Quan Yin's Pink Dragon_p46.jpg": {
+chapter: "第 33 章", ebookPage: "P159", bookPage: "P209", nameZh: "觀音的粉紅龍", nameEn: "Quan Yin's Pink Dragon",
+content: "【觀音的粉紅龍（Quan Yin's Pink Dragon）的龍族信息】\n\n觀音是「御龍大師」，成千上萬的龍在祂的指導下工作。祂的明亮粉紅龍大量湧入，要幫助人類。祂們使我們沐浴在觀音的光芒中，敞開我們的意識，接受祂的特殊和最深邃的智慧。粉紅龍引導和保護我們，就像對待祂們摯愛的觀音一樣。祂們正在設法療癒人類的本我輪，散播神聖女性智慧。",
+practice: "【觀音的粉紅龍的專屬練習：療癒你的關係】\n\n祈請觀音的龍，覺察到這些明亮粉紅色的光之存有在你周圍。請求他們用純淨的愛填滿你的心，將他們的超然的愛大量注入你的本我輪，消融掉任何將你與他人捆綁在一起的羈絆。請求他們幫助你用愛的眼睛看見每一個人內在的神性。"
+},
+"15_Archangel Gabriel's Dragon_p48.jpg": {
+chapter: "第 34 章", ebookPage: "P164", bookPage: "P215", nameZh: "大天使加百列的白色水晶龍", nameEn: "Archangel Gabriel's Dragon",
+content: "【大天使加百列的白色水晶龍（Archangel Gabriel's Dragon）的龍族信息】\n\n大天使加百列的龍閃爍著白色的水晶光，他們的願景是讓你備好，走上「鑽石揚升之路」。他們將強烈的白光發送到你的能量場中，清理和淨化你的物質身體，深層滌淨你的細胞，使它們亮起來。這些純白色的龍也與純白色的獨角獸有緣，將渾濁的振動打包，請獨角獸將它們帶入可以蛻變它們的內在層面。",
+practice: "【白色水晶龍的專屬練習：成為指路明燈】\n\n呼喚大天使加百列的白龍來到你身邊，感應到他們用一百萬個小小的白光在內在照亮你。感應到他們將一顆巨大的宇宙級鑽石，置於你的氣場上方。在平凡度日時，知道你是指路明燈。"
+},
+"16_Rainbow Dragon_p50.jpg": {
+chapter: "第 21 章", ebookPage: "P101", bookPage: "P137", nameZh: "七彩龍", nameEn: "Rainbow Dragon",
+content: "【七彩龍（Rainbow Dragon）的龍族信息】\n\n彩虹不只是大氣條件的物理反應，它也是宇宙的預兆。美麗、神秘的七彩龍帶給你承諾的禮物，當你承認祂的時候，一簇多彩的魔法火焰在你內在點燃。祂可能會從宇宙的豐盛池中汲取某樣東西，或是打開機會之門，或是重新點燃有裨益的前世鏈接。七彩龍帶你越過彩虹，找到等待你的那種金子。",
+practice: "【七彩龍的專屬練習：與七彩龍一起旅行】\n\n閉上眼睛，想像一道彩虹跨過天空。看見一條柔軟的七彩龍從彩虹中出現，讓你的心因高興和期待而敞開。騎上他的背，你們快樂地與氣流一起流動。一座巨大的金色大門出現在你的眼前，觸碰它，將它推開，拿起門後那罐屬於你的金子。"
+},
+"17_Black Dragon_p52.jpg": {
+chapter: "第 22 章", ebookPage: "P105", bookPage: "P142", nameZh: "黑龍", nameEn: "Black Dragon",
+content: "【黑龍（Black Dragon）的龍族信息】\n\n黑龍很美，而且威力強大。黑色象徵「神聖女性」，攜帶著所有愛、關懷、哺育、慈悲的品質。當你準備好迎接新事物進入你的生命時，這些黑龍將你保持在安全、黑暗的防護膜之中，讓你的秘密希望、隱藏才能、神性潛力的種子能生長和發展。他們鼓勵你靜心冥想，讓天使界可以滴下新的種子。",
+practice: "【黑龍的專屬練習：培養新潛能】\n\n收集一些紙和彩色筆，靜靜地呼喚黑龍。畫出一球大大的黑色防護膜的輪廓，在它的中心畫一顆種子，開始長出綠葉。在接下來的日子裡，畫上更多的葉子，最後畫上生長葉子穿過防護膜壁，知道你已經準備就緒要好好擴展。"
+},
+"18_Emerald Dragon_p54.jpg": {
+chapter: "第 35 章", ebookPage: "P168", bookPage: "P220", nameZh: "大天使拉斐爾的祖母綠龍", nameEn: "Emerald Dragon",
+content: "【祖母綠龍（Emerald Dragon）的龍族信息】\n\n祖母綠龍與拉斐爾這位療癒和豐盛的祖母綠大天使一起工作。祖母綠龍是五維的，握有你完美健康的靈性願景。他們潛入，設法銷毀那些導致疾病的低階振動。他們也提升你的豐盈意識層級，將豐盛意識填滿你的眉心輪的密室。祖母綠龍保護你的眉心輪，防止別人取用它。",
+practice: "【祖母綠龍的專屬練習：滌淨和擦亮眉心輪】\n\n觀想你的眉心輪是一座有九十六間密室的螺旋形。祈請祖母綠龍進入你的眉心輪，將祖母綠光吹入每一間大門敞開的密室。請求大天使拉斐爾將你的眉心輪鏈接到木星和「珍貝」，感應到連結它們的光束就位。"
+},
+"19_Silver Dragon_p56.jpg": {
+chapter: "第 23 章", ebookPage: "P109", bookPage: "P147", nameZh: "銀龍", nameEn: "Silver Dragon",
+content: "【銀龍（Silver Dragon）的龍族信息】\n\n銀色是月亮的顏色，與「神聖女性」有關聯。銀龍非常有智慧，散發和平、平靜、溫柔。他們柔和的銀光圍住你，融化掉任何可能阻礙你的靈魂進步的深刻痛苦。銀龍充當鏡子，當你注視他們的時候，你可以看見你的神性自我反映在他們的眼睛裡。他們也自動地在身後留下一長串繁榮。",
+practice: "【銀龍的專屬練習：看進你的靈魂鏡子】\n\n邀請一條銀龍來到你身邊。覺察到一道銀色正在靠近，你被一團銀色圈住。那條銀龍舉起一面靈魂鏡子，你向內看。知道你隱藏的天賦、才能或特質可能會開始自行揭露。"
+},
+"20_Orange Dragon_p58.jpg": {
+chapter: "第 24 章", ebookPage: "P113", bookPage: "P152", nameZh: "橙龍", nameEn: "Orange Dragon",
+content: "【橙龍（Orange Dragon）的龍族信息】\n\n橙龍正致力於靈魂家族和靈魂社群及時團聚起來，迎接新的黃金時代。他們照亮個人和團體，讓他們相互體認到對方。這些龍噴出接納、溫暖、幸福的火焰，和平地連結人們。橙龍也幫助開發你的臍輪，使你能開發更高的顯化能力。",
+practice: "【橙龍的專屬練習：散播和平與友誼】\n\n召請橙龍們，請求他們將氣息吹入你的臍輪。在世界各地看見家家戶戶的前門敞開，看見各地的人們放輕鬆，處於和平的狀態。觀想橙龍們消融掉國家、宗教、社區、個人之間的所有邊界。"
+},
+"21_Deep Blue Dragon_p60.jpg": {
+chapter: "第 37 章", ebookPage: "P176", bookPage: "P230", nameZh: "大天使麥可的深藍龍", nameEn: "Deep Blue Dragon",
+content: "【深藍龍（Deep Blue Dragon）的龍族信息】\n\n大天使麥可的深藍龍為世界各地的人們帶來實力、保護、靈感。他們可以用勇氣以及為你的信念挺身而出的實力激發你，建立一道乙太防火牆，保護你免於可能來自不希望你靠自己的力量站穩的人們的攻擊。他們是大師級清除專家，可以清除周圍長達一公里的低階頻率。",
+practice: "【深藍龍的專屬練習：清理你周圍的空間】\n\n祈請一支深藍龍大軍，感應到他們朝你席捲而來。請求他們清掃你的住家底下、工作場所、時常進出的購物中心或任何建築物，清理你周圍一公里的空間。好好注意走在清明的能量中有何感覺。"
+},
+"22_Crystal Yellow Dragon_p62.jpg": {
+chapter: "第 36 章", ebookPage: "P172", bookPage: "P225", nameZh: "大天使約菲爾的水晶黃龍", nameEn: "Crystal Yellow Dragon",
+content: "【水晶黃龍（Crystal Yellow Dragon）的龍族信息】\n\n大天使約菲爾的水晶黃龍的任務之一是，在你的頂輪附近盤旋，保持這個脈輪純淨而清明。他們滌淨每一片花瓣，解開它的糾結，吹走任何牽絆它的老舊能量。他們保護並強化這些通向宇宙的鏈接，幫助你整合靈性信息和知識。水晶黃龍攜帶著宇宙的五維智慧密碼，當你準備就緒時，可以下載它們進入你。",
+practice: "【水晶黃龍的專屬練習：打開你的頂輪的花瓣】\n\n聚焦在你的頂輪，召請大天使約菲爾的水晶黃龍們。觀想你有千片花瓣的頂輪開始甦醒和展開，感應到其中一片花瓣向上伸展，同時一條水晶黃龍吹氣圈住它，解放並滌淨它。調頻進入這片花瓣，感應它正鏈接到什麼地方。"
+},
+"23_Green Dragon_p64.jpg": {
+chapter: "第 25 章", ebookPage: "P118", bookPage: "P158", nameZh: "青龍", nameEn: "Green Dragon",
+content: "【青龍（Green Dragon）的龍族信息】\n\n青龍照顧大自然，他們熱情地愛著自然界。每一種植物、花朵、樹木都攜帶著自己特有的神性藍圖，青龍了解且保護大自然的秘密。大自然的療癒屬性不只是植物的藥用特性，還有許許多多尚待被揭露。青龍們正耐心地等待我們的意識擴展到我們可以接受這點的程度。",
+practice: "【青龍的專屬練習：在大自然中找到答案】\n\n坐在某個安靜的地方，想起某個問題。召喚青龍們，請求他們幫你找到答案。在大自然中散步，放輕鬆，好好享受周圍的事物。看見為了回答你的問題，青龍們吸引你注意到什麼。"
+},
+"24_Golden Orange Dragon_p66.jpg": {
+chapter: "第 39 章", ebookPage: "P185", bookPage: "P241", nameZh: "大天使麥達昶的金色橙龍", nameEn: "Golden Orange Dragon",
+content: "【金色橙龍（Golden Orange Dragon）的龍族信息】\n\n金色橙龍在大天使麥達昶的團隊工作，為的是加速你個人和地球以及整個宇宙的揚升。他們攜帶著地球的五維揚升藍圖，為你提供保護、鼓勵、靈感，增強你的意志力。他們一看見你準備就緒，就為你照亮道路，然後將榮耀的揚升之光吹入你體內，吸引發光大師、高階指導靈、天使、獨角獸來到你身邊。",
+practice: "【金色橙龍的專屬練習：釋放老舊信念】\n\n寫下你會是怎樣的揚升大師，列出任何使你無法成為揚升大師的信念。想像每一個信念都非常大，然後看見它逐漸縮小。畫一顆顆金色泡泡圈住每一個信念，請求麥達昶的龍幫你消融掉它們。"
+},
+"25_Sunshine Yellow Dragon_p68.jpg": {
+chapter: "第 38 章", ebookPage: "P180", bookPage: "P235", nameZh: "大天使費利耶的陽光黃龍", nameEn: "Sunshine Yellow Dragon",
+content: "【陽光黃龍（Sunshine Yellow Dragon）的龍族信息】\n\n大天使費利耶的陽光黃龍是所有龍之中最溫和且最慈悲的。他們將動物庇護在雙翼底下，支持和安慰他們，幫助動物們完成他們的靈魂使命。陽光黃龍正在非常努力地設法從那些還不知道該如何尊重地對待所有生物的人們的意識中，抽出無用的信念。",
+practice: "【陽光黃龍的專屬練習：為動物們建造能量之門】\n\n選定一個可以放置能量之門的安全地區，陳述它的目的（例如為動物們提供一條死後可以穿越的光之路）。祈請大天使費利耶派遣祂的天使們到這裡創造一柱陽光黃光，請求土龍替那扇能量之門扎根接地，請求陽光黃龍圍繞著那道光束盤旋。"
+},
+"26_Royal Blue Gold Dragon_p70.jpg": {
+chapter: "第 26 章", ebookPage: "P122", bookPage: "P163", nameZh: "寶藍金龍", nameEn: "Royal Blue Gold Dragon",
+content: "【寶藍金龍（Royal Blue Gold Dragon）的龍族信息】\n\n寶藍色是在地球上或宇宙其他層面，歷經累生累世獲得的顏色頻率。宏偉莊嚴的寶藍金龍攜帶著真理、榮譽、尊嚴的品質。他們提示你時候到了，該要運用智慧靠自己的力量站穩。當大天使麥可將那件寶藍和金色的「有智慧的力量披風」置於你的能量場周圍時，他也將他的「真理之劍」贈予你。",
+practice: "【寶藍金龍的專屬練習：得到你的力量披風和真理之劍】\n\n祈請一條寶藍金龍，坐在祂的背上，穿越各個維度，來到大天使麥可的藍寶石神廟。大天使麥可仔細但和藹地檢視你，然後將一件寶藍配金色的披風披在你肩上，一把熾熱的真理之劍放在你的雙手中。感覺到你自己帶著真理和榮譽靠你的力量站穩。"
+},
+"27_Magenta Dragon_p72.jpg": {
+chapter: "第 32 章", ebookPage: "P154", bookPage: "P202", nameZh: "大天使馬利爾的洋紅龍", nameEn: "Magenta Dragon",
+content: "【洋紅龍（Magenta Dragon）的龍族信息】\n\n大天使馬利爾的洋紅龍陪伴你踏上你的永恒靈魂旅程。他們使你能在今生帶出你的靈魂智慧，加速你的揚升。他們的終極目標是幫助你與你的高我融合，好讓你以全然不同的方式活出你的人生。當一條洋紅龍看見你的光正在燃燒時，他靠近你，開始消融「失憶的帷幕」，你可以開始憶起你的起源和你的靈魂旅程。",
+practice: "【洋紅龍的專屬練習：重新發現你的靈魂智慧】\n\n祈請一條大天使馬利爾的洋紅龍，覺察到這條光輝燦爛的龍在你周圍創造出一簇洋紅色火焰。坐在那條龍的背上，她帶你踏上旅程，造訪其他前世、存在的層面乃至不同的宇宙。與她一起飛進火焰的中心，那是你浩瀚的靈魂能量，注意你其實是多廣大無邊、發光發亮的。"
+},
+"28_Black Dragon from Saturn_p74.jpg": {
+chapter: "第 47 章", ebookPage: "P232", bookPage: "P301", nameZh: "來自土星的黑龍", nameEn: "Black Dragon from Saturn",
+content: "【來自土星的黑龍（Black Dragon from Saturn）的龍族信息】\n\n土星實際上是靈性紀律的行星。來自土星的黑龍提醒你這個宇宙的靈性法則，他們只有在你的行事違反靈性法則時才會約束你。一旦你選定了你的目標，這些黑龍將會幫助你規劃你要做什麼才能達到目標，同時鼓勵你平衡你的人生。他們將會為你帶來你所需要的決心。",
+practice: "【來自土星的黑龍的專屬練習：聚焦挑戰】\n\n想起你目前面臨的某個挑戰或情境，祈請一條來自土星的黑龍。請求祂約束你在這個情境裡只做基於至善的事，祈請大天使加百列，祂們一起在你的海底輪內放置一個完美的黑白陰陽符號。放輕鬆，讓它融入你的系統。"
+},
+"29_Thor's Red, black and Gold Dragon_p76.jpg": {
+chapter: "第 31 章", ebookPage: "P149", bookPage: "P196", nameZh: "雷神索爾的紅黑金龍", nameEn: "Thor's Red, Black and Gold Dragon",
+content: "【雷神索爾的紅黑金龍（Thor's Red, Black and Gold Dragon）的龍族信息】\n\n索爾的紅黑金龍直接在火元素大師索爾的指揮下工作。他們運用火的力量清除和蛻變老舊，在需要再生的地方允許再生。這些龍在整個宇宙裡擔任靈性的、和平的戰士，四處巡邏，確保一切正常。他們幫助弱者，節制強者的行動。",
+practice: "【紅黑金龍的專屬練習：幫助你在人生中繼續前進】\n\n祈請紅黑金龍，感應到他們正在清除你周圍的能量。不管你準備好要離開什麼情境或關係然後繼續前進，告訴他們。覺察到他們在你想要放下的東西旁邊飛舞，看見老地方填滿一長串的金色，知道渴望的改變正在開始。"
+},
+"30_Rose Pink Dragon_p80.jpg": {
+chapter: "第 27 章", ebookPage: "P126", bookPage: "P168", nameZh: "玫瑰粉龍", nameEn: "Rose Pink Dragon",
+content: "【玫瑰粉龍（Rose Pink Dragon）的龍族信息】\n\n玫瑰粉龍是以心為中心的愛的散播者，他們與大天使夏彌爾合作，敞開且提升你的心輪的頻率。你的心輪包含三十三間密室，每間密室內含一門愛的功課。玫瑰粉龍協助你學習這些功課。他們幫助你培養更高階的愛的品質，例如同理和慈悲，並協助你完全敞開你的心輪。",
+practice: "【玫瑰粉龍的專屬練習：用光和愛填滿你的心】\n\n下定決心要放下小我，寬恕包括你自己在內的每一個人。請求玫瑰粉龍來到你身邊，打開通向前十間密室的門，請求他們進入，治療裡面的一切。然後繞著螺旋形移動，打開通向接下來十間、再接下來九間密室的門，最後打開通向四間中央密室的門，讓純淨的白光傾瀉而出。"
+},
+"31_Aquamarine Dragon from Neptune_p82.jpg": {
+chapter: "第 41 章", ebookPage: "P199", bookPage: "P261", nameZh: "來自海王星的海藍寶龍", nameEn: "Aquamarine Dragon from Neptune",
+content: "【來自海王星的海藍寶龍（Aquamarine Dragon from Neptune）的龍族信息】\n\n海王星保存著這個宇宙進階靈性的密碼。列穆尼亞和亞特蘭提斯的智慧也儲存在這裡，由海藍寶龍保護。這些美麗的龍將這份智慧散播給準備好要接收它的人們。他們可以喚醒你的心靈能力，將海藍寶能量的漩渦徐徐注入脈輪，提升它們從事心靈工作的頻率。",
+practice: "【海藍寶龍的專屬練習：協調你的心靈能力】\n\n祈請一條海藍寶龍，祂發送一漩渦的海藍寶光旋轉進入你的本我輪、太陽神經叢、心輪、喉輪、眉心輪，將你的心靈能力調頻對準更高的頻率。然後祂用海藍寶光填滿你的頂輪上方的區域，讓你的頂輪花瓣基於純淨的靈認知力，在宇宙中做出明確的鏈接。"
+},
+"32_Pure White Dragon from Orion_p84.jpg": {
+chapter: "第 48 章", ebookPage: "P237", bookPage: "P307", nameZh: "來自獵戶座的純白龍", nameEn: "Pure White Dragon from Orion",
+content: "【來自獵戶座的純白龍（Pure White Dragon from Orion）的龍族信息】\n\n獵戶座是智慧的行星。來自獵戶座的純白龍在祂們的能量場中攜帶著特殊的智慧之光，可以幫助你從開悟的視角看見事物。他們有能力將你在揚升之路上獲得的所有知識轉化成為純淨智慧。白色代表純淨和忠於你的本質，他們帶著這些品質振動，有能力將它們傳遞給其他人。",
+practice: "【純白龍的專屬練習：接收到白光和智慧】\n\n請求瑟若佩斯．貝將「亞特蘭提斯的白色火焰」置於你的上方。邀請獵戶座的純白龍將它搧成巨大的火焰，照亮你的細胞。騎上那條純白龍，回到「真理的聖殿」，在那裡，獨角獸、大天使加百列、淨光兄弟會的大師們、純白龍等候著你，賜福給你、照亮你。"
+},
+"33_Blue Dragon from the Pleiades_p86.jpg": {
+chapter: "第 49 章", ebookPage: "P241", bookPage: "P313", nameZh: "來自昴宿星團的藍龍", nameEn: "Blue Dragon from the Pleiades",
+content: "【來自昴宿星團的藍龍（Blue Dragon from the Pleiades）的龍族信息】\n\n昴宿星團是「本源」將藍色療癒內心的光下載到這個宇宙的通道。這些龍是美麗的中天藍色，他們的角色是將昴宿星團的內心療癒帶到宇宙的各個部分。他們可以將一朵微微發光、有三十三片花瓣的藍玫瑰置於你的每一個脈輪裡，用愛和療癒啟動它們，然後這朵藍玫瑰被投射出去，用它的療癒能量觸動他人。",
+practice: "【藍龍的專屬練習：將你的心連結到藍色宇宙級玫瑰】\n\n在心裡祈請來自昴宿星團的藍色療癒龍，看見他們將「本源」的療癒之光吹入你的心輪。覺察到一朵有三十三片花瓣的巨型藍玫瑰在你的心輪中成形，他們正在將你的心直接連結到昴宿星團上方的藍色宇宙級玫瑰。放輕鬆，持續透過昴宿星團接收和送出藍色的「本源」療癒。"
+},
+"34_Green-Gold Dragon from Sirius_p88.jpg": {
+chapter: "第 50 章", ebookPage: "P247", bookPage: "P321", nameZh: "來自天狼星的綠金龍", nameEn: "Green-Gold Dragon from Sirius",
+content: "【來自天狼星的綠金龍（Green-Gold Dragon from Sirius）的龍族信息】\n\n來自天狼星的綠金龍握有在最高階且最純淨的光中教育和學習的能量。他們很可能會在你入睡時帶你來到天狼星上的「光之學院」，精進你的靈性知識和理解力。他們也攜帶著發光之路的密碼，以及在全新黃金時代才會出現的技術。他們是宇宙級旅行者，將來自宇宙各地的靈帶到「學習大廳」。",
+practice: "【綠金龍的專屬練習：造訪天狼星的大學】\n\n祈請一條來自天狼星的綠金龍，請求祂帶你去到天狼星的教學機構。騎在祂的背上，你看見前方的白黃色大門，祂帶你進入一間巨型會議廳。有人遞給你一塊水晶，你將水晶貼著你的眉心輪，內含靈性信息和知識的密碼的光被下載進入你的眉心輪。"
+},
+"35_Silver Lunar Dragon_p90.jpg": {
+chapter: "第 51 章", ebookPage: "P252", bookPage: "P327", nameZh: "銀月龍", nameEn: "Silver Lunar Dragon",
+content: "【銀月龍（Silver Lunar Dragon）的龍族信息】\n\n「本源」透過月球將神聖女性之光傳送到地球。銀月龍在祂們的能量場中攜帶著神聖女性之光，他們的目標是要用合作、和平、和諧、愛、智慧等品質觸動人們。月球是地球和天琴座之間的門戶，銀月龍可以在這個空間裡休息，得到能量的加持。他們幫助你的因果輪亮起來，在靈性上擴展。",
+practice: "【銀月龍的專屬練習：照亮你的神聖女性能量】\n\n祈請銀月龍，請求祂們讓你沐浴在祂們的能量之中。聚焦在你的因果輪，觀想它是你上方的珍珠圓盤。感應到銀月龍正在觸碰它，於是它逐漸變成一顆巨大的月亮。允許天使、龍、獨角獸在它周圍飄浮，穿過它。知道你比以往任何時候都更接近天使界。"
+},
+"36_Golden Solar Dragon_p92.jpg": {
+chapter: "第 52 章", ebookPage: "P256", bookPage: "P332", nameZh: "來自赫利俄斯的金色太陽龍", nameEn: "Golden Solar Dragon",
+content: "【來自赫利俄斯的金色太陽龍（Golden Solar Dragon）的龍族信息】\n\n金色太陽龍來自「中央大日」赫利俄斯，在祂們的能量場中攜帶著我們宇宙的原始力量和原力。當他們靠近你的時候，他們用神聖男性能量觸動你，將大量的勇氣和力氣傳送到你全身，點燃你與生俱來的自信、領導力、魄力等男性品質。他們也幫忙啟動我們的十二股DNA，使我們準備好迎接新的黃金時代。",
+practice: "【金色太陽龍的專屬練習：與大天使麥達昶一起重新編排你的DNA】\n\n感應到金色太陽龍圍繞著你，請求祂們帶你到赫利俄斯的星際之門進行DNA重新編程。騎上一條閃爍的金龍，穿越維度到達赫利俄斯，進入大天使麥達昶的強大橙色能量柱。深呼吸，你的DNA開始被重新編排，新的光碼被下載進入你的能量系統。"
+},
+"37_Dusky Pink Dragon from Andromeda_p94.jpg": {
+chapter: "第 40 章", ebookPage: "P192", bookPage: "P251", nameZh: "來自仙女座的暗粉龍", nameEn: "Dusky Pink Dragon from Andromeda",
+content: "【來自仙女座的暗粉龍（Dusky Pink Dragon from Andromeda）的龍族信息】\n\n這些美麗的龍散發出柔和、明亮的粉紅色光，攜帶著超然的愛的頻率。當他們觸碰你的時候，他們使你能看見他人的優點，能夠瞬間與對方靈魂的真實之光連結。他們將純愛的火焰插入你十二個脈輪中的每一個脈輪，用粉紅色的光芒照亮你的氣場，使你的所有脈輪準備好接收更高的愛。",
+practice: "【暗粉龍的專屬練習：用愛填滿你的脈輪】\n\n從地球之星脈輪開始，將一片粉紅色的花瓣放在那張紙上的適當位置，然後向上移動穿越十二個脈輪。在心裡默唸或大聲召請仙女座的暗粉龍。依次聚焦在每一個脈輪，請求暗粉龍進入你正聚焦關注的脈輪，用超然的愛填滿脈輪。"
+},
+"38_Orange-Gold Dragon from Arcturus_p96.jpg": {
+chapter: "第 53 章", ebookPage: "P261", bookPage: "P338", nameZh: "來自大角星的橙金龍", nameEn: "Orange-Gold Dragon from Arcturus",
+content: "【來自大角星的橙金龍（Orange-Gold Dragon from Arcturus）的龍族信息】\n\n當來自大角星恆星系統的橙金龍進入你的生命時，時候到了，該要靠自己的力量站穩，因為你有一個待履行的天命。這些龍是非常高頻的存有，完全服務導向。大角星人在整個宇宙中被喻為療癒師，他們了解如何與靈性能量共事，治癒你的脈輪、經絡、能量體甚至你的DNA。",
+practice: "【橙金龍的專屬練習：造訪大角星的星際之門】\n\n召請橙金龍，告訴祂你已經準備好要成為新世界的指路明燈。祂將一道橙金色的光吹到你身上，邀請你造訪大角星的星際之門。你騎上祂的背，穿越許多維度，進入一間療癒室。一位小小的存有站在你的頭部旁邊，操縱著你身體內部和周圍的能量。你需要休息多久，就休息多久。"
+},
+"39_White-Gold Dragon from Lyra_p98.jpg": {
+chapter: "第 54 章", ebookPage: "P266", bookPage: "P345", nameZh: "來自天琴座的白金龍", nameEn: "White-Gold Dragon from Lyra",
+content: "【來自天琴座的白金龍（White-Gold Dragon from Lyra）的龍族信息】\n\n天琴座持有通向另一個宇宙的十字形星際之門，內含十二維的基督之光。白金龍保護這扇能量之門。許多獨角獸和龍在天琴座的星際之門外，等待我們透過磁性共振將祂們吸引到地球。大天使克里斯蒂爾透過月球送出一道向下的銀白色光流，讓這些龍以及獨角獸們可以進入地球的能量場。",
+practice: "【白金龍的專屬練習：啟動你的因果輪】\n\n覺察到你面前有一條美麗明亮的白金龍。騎上祂的背，飄浮穿過宇宙，直到你看見「拉庫美」面前的巨型白金光球。躺進光池裡，你的龍張開雙翼，輝煌的金光如同陽光一樣照亮你。當你準備就緒時，祂將氣息吹入你頭頂上方的因果輪中，你可以感覺到因果輪變得愈來愈大、愈來愈明亮。"
+},
+"40_Golden Atlantean Dragon_p100.jpg": {
+chapter: "第 28 章", ebookPage: "P131", bookPage: "P174", nameZh: "金色亞特蘭提斯龍", nameEn: "Golden Atlantean Dragon",
+content: "【金色亞特蘭提斯龍（Golden Atlantean Dragon）的龍族信息】\n\n宏偉莊嚴的金色亞特蘭提斯龍在亞特蘭提斯黃金時期主動地支持這股能量，他們至今仍舊攜帶著那個令人敬畏的時期的密碼。當你準備好要憶起金色亞特蘭提斯的智慧時，他們便靠近你。他們可以將這些記憶以爆發的金色之火吹入你的眉心輪，以此喚醒你，重新連結你的十二股DNA。",
+practice: "【金色亞特蘭提斯龍的專屬練習：重新連結你的十二股DNA】\n\n祈請一條金色亞特蘭提斯龍，請求她將她的金色之火注入你的心，開始重新連結你的十二股DNA。想像你的十二股DNA就像兩股在你的身體細胞內並排躺著的珠子，動人而放鬆。再請求她將金色之火注入你的眉心輪，喚醒你的記憶。"
+},
+"41_Dark Blue Galactic Dragon_p104.jpg": {
+chapter: "第 55 章", ebookPage: "P272", bookPage: "P353", nameZh: "暗藍銀河龍", nameEn: "Dark Blue Galactic Dragon",
+content: "【暗藍銀河龍（Dark Blue Galactic Dragon）的龍族信息】\n\n發光的暗藍銀河龍是巨大的九維存有，閃耀著金色的宇宙智慧。他們在恆星、行星、星座之間滑翔，平衡光內信息的密鑰和密碼。暗藍銀河龍能夠將一束九維宇宙的探照燈照進你的「大師藍圖」，點燃你的靈魂使命的密碼，幫助你聆聽「宇宙的聲音」。",
+practice: "【暗藍銀河龍的專屬練習：與銀河聯邦理事會會面】\n\n祈請一條暗藍銀河龍，當你在能量上與這條龍連結時，一道光開始從祂的前額發出，點燃你的「大師藍圖」的密碼。騎上祂的背，飛入這個宇宙的最高維度，到達銀河聯邦理事會開會的聖殿。如果你願意，你可以為改善人類、動物或地球提交一份請願，理事會聽取你的請願。"
+},
+"42_Alpha Dragon_p106.jpg": {
+chapter: "第 56 章", ebookPage: "P278", bookPage: "P361", nameZh: "阿爾法龍", nameEn: "Alpha Dragon",
+content: "【阿爾法龍（Alpha Dragon）的龍族信息】\n\n巨大的阿爾法龍散發出深黑色，內在以最高頻率持有大天使麥達昶熾熱的金橙白光。他們可以創造，也可以毀滅。他們參與了這個宇宙的創造，尤其參與了地球的創造。阿爾法龍正與元素們一起運作，確保情況按照神性計畫發生。在老舊需要被摧毀的地方，他們幫忙雕出山脈和陸地的新輪廓和形狀。",
+practice: "【阿爾法龍的專屬練習：幫助形塑新的世界】\n\n想想即將到來的新黃金時代，呼喚一條阿爾法龍。直接跨步進入祂發著光的金橙白色內部，想像你對新世界的願景。留神觀看這條阿爾法龍吸入老舊的結構，然後呼出新的造物。把你的能量也集中在這項工程裡，看見新的建築物散發著金光。"
+},
+"43_Omega Dragon_p108.jpg": {
+chapter: "第 57 章", ebookPage: "P282", bookPage: "P365", nameZh: "歐米茄龍", nameEn: "Omega Dragon",
+content: "【歐米茄龍（Omega Dragon）的龍族信息】\n\n這些美麗而溫和的白銀龍攜帶著創造的神聖女性振動。他們內含「夏凱納」的能量，滋養著「本源」的願景。歐米茄龍與蓋亞夫人共同持有新黃金時代的願景。假如你有個為自己但也會協助他人或世界的心願，這些轉瞬即逝的龍想要幫助你，將能量吹進你的頭腦，搧動你的願景。",
+practice: "【歐米茄龍的專屬練習：幫你誕生出你的願景】\n\n閉上眼睛，將自己包裹在閃閃發光的白銀能量中。感覺到一條白銀龍散發出來的愛和純淨的光。請求祂深入檢視你的內心、頭腦、靈魂，看見你持守在那裡的最大的願景和潛力。讓祂拿走來自你內在的種子，帶到「本源」面前接受啟動。然後祂將那顆發芽的種子吹過你的心，吹進你的靈魂。"
+},
+"44_Source Dragon_p110.jpg": {
+chapter: "第 58 章", ebookPage: "P286", bookPage: "P370", nameZh: "本源龍", nameEn: "Source Dragon",
+content: "【本源龍（Source Dragon）的龍族信息】\n\n本源龍是最高頻率的白色，有著幾乎透明的翅膀。他們使你調頻對準「一切萬有」、「宇宙一體性」。當你的意志和你的心願與神性旨意契合時，本源龍便用創造的神祕火焰照亮它們，將它們帶進物質實相。如果你深入地呼吸、靜心冥想、進入寂靜，本源龍可以更密切地與你一起工作。",
+practice: "【本源龍的專屬練習：透過脈輪連結你與「本源」】\n\n將氣息吸入你的十二個脈輪中的每一個，從地球之星到星系門戶。邀請本源龍，感應到祂以一道透明的白色閃光降落在你身邊。請求祂將一縷純淨的白光透過你的意識橋梁安塔卡拉納，從「本源」向下帶到你的「星系門戶」，然後穿透你的脈輪進入你的眉心輪。感覺到你的意識調頻對準「無窮無限」。"
+}
+};
 
-    let deck = [];
+let deck = [];
+let currentActiveMode = null;
+let currentSelectedCard = null;
 
-    // 【完美修正：解除此處的註解，恢復函數定義，徹底消滅 Syntax Error！】
-    function resetDeck() {
-        deck = [...CARD_FILES];
-        // 清空展示區
-        document.getElementById('cardDisplay').innerHTML = '<span style="color: #64748b; font-size: 15px; font-weight: 500;">牌組已重置，請抽卡</span>';
-        document.getElementById('cardInfoBlock').style.display = 'none';
-        updateStatus();
-    }
+function resetDeck() {
+deck = [...CARD_FILES];
+document.getElementById('cardDisplay').innerHTML = '<span style="color: #64748b; font-size: 15px; font-weight: 500;">牌組已重置，請抽卡</span>';
+document.getElementById('cardInfoBlock').style.display = 'none';
+document.getElementById('cardContentDetail').style.display = 'none';
+currentActiveMode = null;
+currentSelectedCard = null;
+updateStatus();
+}
 
-    function updateStatus() {
-        document.getElementById('statusText').innerText = `剩餘卡牌：${deck.length} / ${CARD_FILES.length}`;
-    }
+function updateStatus() {
+document.getElementById('statusText').innerText = `剩餘卡牌：${deck.length} / ${CARD_FILES.length}`;
+}
 
-    // 🧠 自動從檔名中提取說明書頁碼 (例如: "01_Earth Dragon_p18.jpg" -> "P.18")
-    function getGuidePageFromFilename(filename) {
-        const pageMatch = filename.match(/_p(\d+)\.jpg$/i);
-        return pageMatch ? `P.${pageMatch[1]}` : '';
-    }
+function getGuidePageFromFilename(filename) {
+const pageMatch = filename.match(/_p(\d+)\.jpg$/i);
+return pageMatch ? `P.${pageMatch[1]}` : '';
+}
 
-    // 渲染特定卡牌的詳細資訊
-    function displayCardDetails(selectedCard) {
-        // 1. 顯示圖片
-        const displayDiv = document.getElementById('cardDisplay');
-        displayDiv.innerHTML = `<img src="${selectedCard}" alt="${selectedCard}" id="activeCard">`;
-        
-        // 2. 獲取說明書頁碼（從檔名自動提取）
-        const guidePageNum = getGuidePageFromFilename(selectedCard);
+function displayCardDetails(selectedCard) {
+currentSelectedCard = selectedCard;
+const displayDiv = document.getElementById('cardDisplay');
+displayDiv.innerHTML = `<img src="${selectedCard}" alt="${selectedCard}" id="activeCard">`;
 
-        // 3. 從資料庫讀取並顯示詳細資料
-        const infoBlock = document.getElementById('cardInfoBlock');
-        const cardData = CARD_DATABASE[selectedCard];
-        
-        if (cardData) {
-            document.getElementById('cardChapter').innerText = `📖 ${cardData.chapter}`;
-            document.getElementById('cardEBookPage').innerText = `📱 e-Book ${cardData.ebookPage}`;
-            document.getElementById('cardPhysicalBookPage').innerText = `📘 Book ${cardData.bookPage}`;
-            
-            // 顯示自動提取的說明書頁碼
-            const guideBadge = document.getElementById('cardGuidePage');
-            if (guidePageNum) {
-                guideBadge.innerText = `📙 Guide Book ${guidePageNum}`;
-                guideBadge.style.display = 'inline-block';
-            } else {
-                guideBadge.style.display = 'none';
-            }
+const guidePageNum = getGuidePageFromFilename(selectedCard);
+const infoBlock = document.getElementById('cardInfoBlock');
+const contentDetail = document.getElementById('cardContentDetail');
+const cardData = CARD_DATABASE[selectedCard];
 
-            document.getElementById('cardNameZh').innerText = cardData.nameZh;
-            document.getElementById('cardNameEn').innerText = cardData.nameEn;
-            infoBlock.style.display = 'flex'; // 顯示卡牌資訊
-        } else {
-            // 安全防線：萬一對照表找不到，就顯示純英文名與預設頁碼
-            const fallbackName = selectedCard.replace(/^\d+_/, '').replace(/_p\d+\.jpg$/i, '');
-            document.getElementById('cardChapter').innerText = "📖 未知章節";
-            document.getElementById('cardEBookPage').innerText = "📱 e-Book P.00";
-            document.getElementById('cardPhysicalBookPage').innerText = "📘 Book P.00";
-            
-            const guideBadge = document.getElementById('cardGuidePage');
-            if (guidePageNum) {
-                guideBadge.innerText = `📙 Guide Book ${guidePageNum}`;
-                guideBadge.style.display = 'inline-block';
-            } else {
-                guideBadge.style.display = 'none';
-            }
+if (cardData) {
+document.getElementById('cardChapter').innerText = `📖 ${cardData.chapter}`;
+document.getElementById('cardEBookPage').innerText = `📱 e-Book ${cardData.ebookPage}`;
+document.getElementById('cardPhysicalBookPage').innerText = `📘 Book ${cardData.bookPage}`;
 
-            document.getElementById('cardNameZh').innerText = fallbackName;
-            document.getElementById('cardNameEn').innerText = "";
-            infoBlock.style.display = 'flex';
-        }
-    }
+const guideBadge = document.getElementById('cardGuidePage');
+if (guidePageNum) {
+guideBadge.innerText = `📙 Guide Book ${guidePageNum}`;
+guideBadge.style.display = 'inline-block';
+} else {
+guideBadge.style.display = 'none';
+}
 
-    // 抽卡功能
-    function drawCard() {
-        if (deck.length === 0) {
-            // 使用自訂資訊提示
-            const displayDiv = document.getElementById('cardDisplay');
-            displayDiv.innerHTML = '<span style="color: #f43f5e; font-size: 15px; font-weight: 500;">卡牌已經抽完啦！請點擊下方「重新洗牌」按鈕。</span>';
-            return;
-        }
+document.getElementById('cardNameZh').innerText = cardData.nameZh;
+document.getElementById('cardNameEn').innerText = cardData.nameEn;
+infoBlock.style.display = 'flex';
 
-        // 隨機抽牌
-        const randomIndex = Math.floor(Math.random() * deck.length);
-        const selectedCard = deck.splice(randomIndex, 1)[0];
+contentDetail.style.display = 'none';
+document.getElementById('btnReadContent').innerText = "✨ 龍族信息";
+document.getElementById('btnPractice').innerText = "🧘 專屬練習";
+currentActiveMode = null;
 
-        // 顯示卡牌細節
-        displayCardDetails(selectedCard);
-        
-        updateStatus();
-    }
+} else {
+const fallbackName = selectedCard.replace(/^\d+_/, '').replace(/_p\d+\.jpg$/i, '');
+document.getElementById('cardChapter').innerText = "📖 未知章節";
+document.getElementById('cardEBookPage').innerText = "📱 P.00";
+document.getElementById('cardPhysicalBookPage').innerText = "📘 P.00";
+document.getElementById('cardNameZh').innerText = fallbackName;
+document.getElementById('cardNameEn').innerText = "";
+infoBlock.style.display = 'flex';
+contentDetail.style.display = 'none';
+currentActiveMode = null;
+}
+}
 
-    // 生成並打開「所有卡牌一覽」彈窗
-    function openAllCards() {
-        const modal = document.getElementById('allCardsModal');
-        const grid = document.getElementById('cardsGrid');
-        
-        // 只有第一次打開時動態渲染，優化效能
-        if (grid.children.length === 0) {
-            CARD_FILES.forEach(filename => {
-                const cardData = CARD_DATABASE[filename] || { nameZh: "未知卡牌", nameEn: "" };
-                
-                // 創建卡牌網格項目
-                const item = document.createElement('div');
-                item.className = 'grid-item';
-                // 點擊後顯示該牌並關閉視窗
-                item.onclick = () => selectCardFromList(filename);
+function toggleCardContent(mode) {
+const contentDetail = document.getElementById('cardContentDetail');
+const btnInfo = document.getElementById('btnReadContent');
+const btnPractice = document.getElementById('btnPractice');
+const titleEl = document.getElementById('contentDetailTitle');
+const textBodyEl = document.getElementById('cardTextBody');
 
-                item.innerHTML = `
-                    <div class="grid-item-img-container">
-                        <img src="${filename}" alt="${cardData.nameZh}" onerror="this.src='https://placehold.co/120x170/1e293b/94a3b8?text=${encodeURIComponent(cardData.nameZh)}'">
-                    </div>
-                    <div class="grid-item-name-zh">${cardData.nameZh}</div>
-                    <div class="grid-item-name-en">${cardData.nameEn}</div>
-                `;
-                
-                grid.appendChild(item);
-            });
-        }
-        
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // 防止底層頁面滾動
-    }
+const cardData = CARD_DATABASE[currentSelectedCard];
+if (!cardData) return;
 
-    // 關閉彈窗
-    function closeAllCards() {
-        const modal = document.getElementById('allCardsModal');
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
+if (currentActiveMode === mode) {
+contentDetail.style.display = 'none';
+btnInfo.innerText = "✨ 龍族信息";
+btnPractice.innerText = "🧘 專屬練習";
+currentActiveMode = null;
+return;
+}
 
-    // 從圖鑑中選擇卡牌直接瀏覽
-    function selectCardFromList(filename) {
-        // 1. 顯示該牌詳細資訊
-        displayCardDetails(filename);
-        
-        // 2. 從目前的剩餘牌組（deck）中，將這張牌移除，確保不重複抽到
-        const cardIndex = deck.indexOf(filename);
-        if (cardIndex > -1) {
-            deck.splice(cardIndex, 1);
-        }
-        
-        // 3. 更新狀態顯示
-        updateStatus();
-        
-        // 4. 關閉彈窗
-        closeAllCards();
-    }
+if (mode === 'info') {
+titleEl.innerText = `✨ ${cardData.nameZh} 龍族信息`;
+titleEl.className = "title-info";
+textBodyEl.innerText = cardData.content || "暫無詳細信息文字。";
+contentDetail.className = "card-content-detail border-info";
+btnInfo.innerText = "❌ 關閉信息";
+btnPractice.innerText = "🧘 專屬練習";
+currentActiveMode = 'info';
+} else if (mode === 'practice') {
+titleEl.innerText = `🧘 ${cardData.nameZh} 專屬練習`;
+titleEl.className = "title-practice";
+textBodyEl.innerText = cardData.practice || "暫無專屬練習文字。";
+contentDetail.className = "card-content-detail border-practice";
+btnInfo.innerText = "✨ 龍族信息";
+btnPractice.innerText = "❌ 關閉練習";
+currentActiveMode = 'practice';
+}
 
-    // 點擊彈窗背景亦可關閉
-    document.getElementById('allCardsModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeAllCards();
-        }
-    });
+contentDetail.style.display = 'block';
+contentDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
-    // 啟動初始化
-    resetDeck();
+function drawCard() {
+if (deck.length === 0) {
+const displayDiv = document.getElementById('cardDisplay');
+displayDiv.innerHTML = '<span style="color: #f43f5e; font-size: 15px; font-weight: 500;">卡牌已經抽完啦！請點擊下方「重新洗牌」按鈕。</span>';
+document.getElementById('cardInfoBlock').style.display = 'none';
+document.getElementById('cardContentDetail').style.display = 'none';
+return;
+}
+
+const randomIndex = Math.floor(Math.random() * deck.length);
+const selectedCard = deck.splice(randomIndex, 1)[0];
+
+displayCardDetails(selectedCard);
+updateStatus();
+}
+
+function selectCardFromList(filename) {
+displayCardDetails(filename);
+closeAllCards();
+}
+
+function openAllCards() {
+const modal = document.getElementById('allCardsModal');
+const grid = document.getElementById('cardsGrid');
+
+if (grid.children.length === 0) {
+CARD_FILES.forEach(filename => {
+const cardData = CARD_DATABASE[filename] || { nameZh: "未知卡牌", nameEn: "" };
+
+const item = document.createElement('div');
+item.className = 'grid-item';
+item.onclick = () => selectCardFromList(filename);
+
+item.innerHTML = `
+<div class="grid-item-img-container">
+<img src="${filename}" alt="${cardData.nameZh}" onerror="this.src='https://placehold.co/120x170/1e293b/94a3b8?text=${encodeURIComponent(cardData.nameZh)}'">
+</div>
+<div class="grid-item-name-zh">${cardData.nameZh}</div>
+<div class="grid-item-name-en">${cardData.nameEn}</div>
+`;
+
+grid.appendChild(item);
+});
+}
+
+modal.classList.add('active');
+document.body.style.overflow = 'hidden';
+}
+
+function closeAllCards() {
+const modal = document.getElementById('allCardsModal');
+modal.classList.remove('active');
+document.body.style.overflow = '';
+}
+
+resetDeck();
 </script>
-
 </body>
 </html>
-
